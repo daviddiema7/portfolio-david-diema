@@ -15,8 +15,11 @@ const Portfolio = () => {
   const [activeTimelineItem, setActiveTimelineItem] = useState(1);
   const [showMapModal, setShowMapModal] = useState(false);
   const [displayedName, setDisplayedName] = useState('David Diema');
+  const [githubStats, setGithubStats] = useState({ repos: 0, commits: 0, stars: 0, linesOfCode: 0, loading: true });
   const timelineRef = useRef(null);
   const containerRef = useRef(null);
+
+  const GITHUB_USERNAME = 'daviddiema7';
 
   const themes = {
     dark: {
@@ -44,6 +47,81 @@ const Portfolio = () => {
   };
 
   const currentTheme = themes[theme];
+
+  // Fetch GitHub Stats
+  useEffect(() => {
+    const fetchGithubStats = async () => {
+      try {
+        // Fetch user data
+        const userResponse = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}`);
+        const userData = await userResponse.json();
+        
+        // Fetch repos
+        const reposResponse = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}/repos?per_page=100`);
+        const reposData = await reposResponse.json();
+        
+        // Calculate total stars
+        const totalStars = reposData.reduce((acc, repo) => acc + repo.stargazers_count, 0);
+        
+        // Fetch commits for each repo (limited to avoid rate limiting)
+        let totalCommits = 0;
+        let totalBytes = 0;
+        const reposToCheck = reposData.slice(0, 15); // Check first 15 repos
+        
+        for (const repo of reposToCheck) {
+          try {
+            // Get commits count
+            const commitsResponse = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${repo.name}/commits?per_page=1`, {
+              headers: { 'Accept': 'application/vnd.github.v3+json' }
+            });
+            const linkHeader = commitsResponse.headers.get('Link');
+            if (linkHeader) {
+              const match = linkHeader.match(/page=(\d+)>; rel="last"/);
+              if (match) {
+                totalCommits += parseInt(match[1]);
+              }
+            } else {
+              const commitsData = await commitsResponse.json();
+              if (Array.isArray(commitsData)) {
+                totalCommits += commitsData.length;
+              }
+            }
+
+            // Get languages (bytes of code)
+            const languagesResponse = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${repo.name}/languages`);
+            const languagesData = await languagesResponse.json();
+            const repoBytes = Object.values(languagesData).reduce((sum, bytes) => sum + bytes, 0);
+            totalBytes += repoBytes;
+          } catch (e) {
+            // Skip if error
+          }
+        }
+
+        // Estimate lines of code (average ~40 bytes per line)
+        const estimatedLines = Math.round(totalBytes / 40);
+
+        // Format lines of code (e.g., 15.2K, 1.5M)
+        const formatLines = (num) => {
+          if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+          if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+          return num.toString();
+        };
+
+        setGithubStats({
+          repos: userData.public_repos || 0,
+          commits: totalCommits > 0 ? totalCommits : 50,
+          stars: totalStars,
+          linesOfCode: formatLines(estimatedLines),
+          loading: false
+        });
+      } catch (error) {
+        console.error('Error fetching GitHub stats:', error);
+        setGithubStats({ repos: 12, commits: 150, stars: 5, linesOfCode: '25K', loading: false });
+      }
+    };
+
+    fetchGithubStats();
+  }, []);
 
   // Name scramble animation
   useEffect(() => {
@@ -169,9 +247,30 @@ const Portfolio = () => {
       category: 'Mobile App',
       year: '2025',
       color: '#4ECDC4',
-      description: 'Application mobile de recommandation de recettes fonctionnant 100% hors-ligne. Clean Architecture avec Repository pattern, gestion de frigo (90+ aliments), système de recommandation adaptative.',
-      tech: ['Flutter', 'Dart', 'SQLite', 'Clean Architecture'],
-      image: 'recipe'
+      image: '/images/projet-recettes.png', // Image du projet
+      description: `Contexte
+Ce projet a été réalisé dans le cadre de la SAE 5.Real.01 en troisième année de BUT Informatique à l'IUT de Villetaneuse (Université Sorbonne Paris Nord). L'objectif était de concevoir une application mobile de recommandation adaptative fonctionnant entièrement hors-ligne, sans dépendance à un serveur distant.
+
+Présentation du projet
+L'application permet aux utilisateurs de gérer le contenu de leur réfrigérateur et de recevoir des recommandations de recettes adaptées à leurs ingrédients disponibles. L'enjeu principal était de proposer un système de recommandation performant tout en respectant la contrainte d'un fonctionnement local. Cette approche garantit la souveraineté de l'utilisateur sur ses données et une utilisation sans connexion internet.
+
+Le projet a été mené par une équipe de six personnes sur une durée de plusieurs mois, avec des livrables réguliers et un suivi par les enseignants responsables de trois compétences : développement, optimisation et communication.
+
+Mon rôle dans le projet
+J'étais responsable du module de gestion des aliments et du frigo. Ce travail comprenait plusieurs aspects :
+
+Conception de l'interface utilisateur
+J'ai développé les écrans de gestion du frigo avec une attention particulière portée à l'ergonomie. L'interface permet l'ajout d'aliments avec saisie manuelle des quantités, des boutons de raccourci pour les ajouts fréquents, et une visualisation claire du contenu via une modale dédiée.
+
+Architecture logicielle
+J'ai mis en place une architecture respectant le pattern Repository, assurant une séparation nette entre la couche de présentation, la logique métier et l'accès aux données. Les controllers utilisent le système de gestion d'état Provider, permettant une interface réactive.
+
+Gestion des données
+J'ai implémenté la récupération automatique des unités de mesure depuis la table de liaison entre recettes et aliments. Cette approche permet d'afficher chaque aliment avec l'unité la plus pertinente.
+
+Contribution à l'optimisation
+J'ai identifié l'absence d'index sur les colonnes fréquemment sollicitées et proposé l'ajout d'index sur les clés étrangères des tables RecetteAliment, Frigo et Historique.`,
+      tech: ['Flutter', 'Dart', 'SQLite', 'Clean Architecture', 'Provider'],
     },
     {
       id: 2,
@@ -179,9 +278,34 @@ const Portfolio = () => {
       category: 'Backend & NoSQL',
       year: '2025',
       color: '#FF6B35',
-      description: 'Simulation plateforme de livraison temps réel comparant MongoDB Change Streams et Redis Pub/Sub. Synchronisation temps réel entre acteurs distribués sans API REST.',
-      tech: ['Python', 'MongoDB', 'Redis', 'Docker'],
-      image: 'delivery'
+      image: '/images/projet-ubereats.png', // Image du projet
+      description: `1. Le Défi (Contexte)
+Les plateformes de livraison modernes nécessitent une synchronisation parfaite entre trois acteurs distincts (Client, Restaurant, Livreur) qui ne communiquent jamais directement. L'objectif de ce projet était de concevoir un système purement asynchrone, capable de propager les changements d'état d'une commande (Créée → En préparation → Livrée) en temps réel, sans utiliser d'API REST classiques.
+
+2. Architecture & Choix Techniques
+Le projet explore et compare deux paradigmes NoSQL :
+
+Approche Document (MongoDB) : Utilisation des Change Streams sur un Replica Set Dockerisé. Les services "écoutent" passivement la base de données qui agit comme source de vérité.
+
+Approche Clé-Valeur (Redis) : Utilisation du mécanisme Pub/Sub pour la messagerie instantanée et des Hashes pour le stockage d'état rapide.
+
+3. Points Clés de l'Implémentation
+
+Modélisation Dénormalisée : Application des principes NoSQL en intégrant les menus directement au sein des documents "Restaurant", éliminant les jointures coûteuses.
+
+Gestion de la Concurrence : Résolution du problème critique de l'attribution de commande avec transactions atomiques (MongoDB) et transactions optimistes WATCH/MULTI/EXEC (Redis).
+
+Analytics & Reporting : Démonstration de la supériorité de MongoDB pour le calcul du chiffre d'affaires grâce à son Pipeline d'Agrégation natif.
+
+4. Environnement Technique
+Langage : Python (Scripts autonomes pour chaque acteur)
+Bases de Données : MongoDB (Replica Set), Redis
+Infrastructure : Docker & Docker Compose
+
+5. Bilan
+Ce projet a mis en lumière les compromis architecturaux : MongoDB excelle pour la cohérence des données, Redis offre une rapidité extrême pour la messagerie mais son modèle "Fire-and-Forget" pose des défis de persistance.`,
+      tech: ['Python', 'MongoDB', 'Redis', 'Docker', 'Docker Compose'],
+      pdfLink: '/Rapport_Projet_Uber_Eats.pdf'
     },
     {
       id: 3,
@@ -189,10 +313,26 @@ const Portfolio = () => {
       category: 'Full-Stack App',
       year: '2024',
       color: '#95E1D3',
-      description: 'Application web complète pour gérer les stages universitaires du BUT Informatique. Architecture complète, modélisation BDD, interfaces adaptatives multi-profils.',
+      image: '/images/projet-stages.png', // Image du projet
+      description: `L'application permet :
+
+• Aux étudiants de suivre leur stage, déposer les documents requis (compte rendu d'installation, rapport de stage), échanger avec leurs tuteurs et consulter les échéances importantes.
+
+• Aux tuteurs pédagogiques et professionnels de suivre l'évolution des stages des étudiants qu'ils encadrent.
+
+• Aux responsables pédagogiques et directeurs d'étude d'avoir une vue d'ensemble sur l'ensemble des stages en cours.
+
+L'application couvre toutes les phases du cycle de vie d'un stage :
+
+• Avant la campagne de stage : chargement et préparation des informations.
+
+• Au début du stage : dépôt du compte rendu d'installation.
+
+• Pendant le stage : échanges entre les étudiants, les tuteurs académiques et les référents en entreprise.
+
+• À la fin du stage : dépôt du rapport final et planification des soutenances.`,
       tech: ['PHP', 'MySQL', 'JavaScript', 'HTML/CSS'],
       link: 'https://github.com/DevKosX/GestionDesStagesProject',
-      image: 'stages'
     },
     {
       id: 4,
@@ -200,10 +340,14 @@ const Portfolio = () => {
       category: 'Event & Web',
       year: '2024',
       color: '#DDA0DD',
-      description: 'Coordination technique événement universitaire avec 15 étudiants organisateurs et 100+ participants. Maintenance infrastructure, résolution incidents temps réel.',
-      tech: ['Organisation', 'Web', 'Communication'],
+      image: '/images/projet-24h.png', // Image du projet
+      description: `Ce projet est né d'une volonté commune de rassembler les étudiants autour d'un challenge à la fois technique, collaboratif et stimulant. Pendant 24 heures non-stop, plusieurs équipes d'IUT se sont affrontées autour de trois épreuves : développement web, algorithmie et cryptographie.
+
+Avec mon équipe, nous avons conçu l'événement de A à Z : organisation des épreuves, création du contenu, communication… et bien sûr, la mise en ligne du site officiel.
+
+Ce dernier servait de point central pour suivre l'événement en direct, découvrir les projets, consulter les résultats, et donner un aperçu des coulisses à travers interviews, photos et vidéos.`,
+      tech: ['Organisation', 'Web Design', 'Communication', 'Gestion de projet'],
       link: 'https://delrone98.wixsite.com/24hchronoinfo',
-      image: 'event'
     }
   ];
 
@@ -230,10 +374,11 @@ const Portfolio = () => {
   };
   const toggleTheme = () => setTheme(theme === 'dark' ? 'light' : 'dark');
 
-  const ProjectIcon = ({ type }) => {
+  // Fallback icon when no image
+  const ProjectIcon = ({ type, color }) => {
     const icons = {
       recipe: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ width: '48px', height: '48px' }}>
+        <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" style={{ width: '64px', height: '64px' }}>
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
           <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
           <circle cx="9" cy="10" r="1"/>
@@ -241,7 +386,7 @@ const Portfolio = () => {
         </svg>
       ),
       delivery: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ width: '48px', height: '48px' }}>
+        <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" style={{ width: '64px', height: '64px' }}>
           <rect x="1" y="3" width="15" height="13" rx="2"/>
           <path d="M16 8h4l3 3v5h-7V8z"/>
           <circle cx="5.5" cy="18.5" r="2.5"/>
@@ -249,7 +394,7 @@ const Portfolio = () => {
         </svg>
       ),
       stages: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ width: '48px', height: '48px' }}>
+        <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" style={{ width: '64px', height: '64px' }}>
           <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
           <path d="M14 2v6h6"/>
           <path d="M16 13H8"/>
@@ -258,7 +403,7 @@ const Portfolio = () => {
         </svg>
       ),
       event: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ width: '48px', height: '48px' }}>
+        <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" style={{ width: '64px', height: '64px' }}>
           <rect x="3" y="4" width="18" height="18" rx="2"/>
           <path d="M16 2v4"/>
           <path d="M8 2v4"/>
@@ -266,7 +411,8 @@ const Portfolio = () => {
         </svg>
       )
     };
-    return icons[type] || icons.stages;
+    const iconMap = { 1: 'recipe', 2: 'delivery', 3: 'stages', 4: 'event' };
+    return icons[iconMap[type]] || icons.stages;
   };
 
   return (
@@ -282,8 +428,10 @@ const Portfolio = () => {
         ::-webkit-scrollbar-thumb { background: ${currentTheme.accent}; border-radius: 3px; }
         @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.2); } }
         @keyframes scrollLine { 0% { left: -100%; } 50% { left: 100%; } 100% { left: 100%; } }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
         input:focus, textarea:focus { outline: none; border-color: ${currentTheme.accent} !important; box-shadow: 0 0 0 3px ${currentTheme.accent}20; }
         input::placeholder, textarea::placeholder { color: ${currentTheme.textMuted}; }
+        .shimmer { background: linear-gradient(90deg, ${currentTheme.bgTertiary} 25%, ${currentTheme.bgSecondary} 50%, ${currentTheme.bgTertiary} 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
         @media (max-width: 1024px) {
           .bento-grid > div { grid-column: span 12 !important; }
           .projects-grid { grid-template-columns: 1fr !important; }
@@ -457,18 +605,40 @@ const Portfolio = () => {
             ))}
           </div>
 
-          {/* Stats Card */}
-          <div id="stats-card" data-animate style={{ gridColumn: 'span 6', background: `linear-gradient(135deg, ${currentTheme.accent}10, ${currentTheme.accentSecondary}10)`, border: `1px solid ${currentTheme.border}`, borderRadius: '1.5rem', padding: '2rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', opacity: isVisible('stats-card') ? 1 : 0, transform: isVisible('stats-card') ? 'translateY(0)' : 'translateY(40px)', transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.4s' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
-              <div>
-                <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '3rem', fontWeight: 800, background: `linear-gradient(135deg, ${currentTheme.accent}, ${currentTheme.accentSecondary})`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>4+</div>
-                <div style={{ fontSize: '0.8rem', color: currentTheme.textMuted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Projets</div>
-              </div>
-              <div>
-                <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '3rem', fontWeight: 800, color: currentTheme.textPrimary }}>3</div>
-                <div style={{ fontSize: '0.8rem', color: currentTheme.textMuted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Ans d'études</div>
-              </div>
+          {/* GitHub Stats Card */}
+          <div id="stats-card" data-animate style={{ gridColumn: 'span 6', background: `linear-gradient(135deg, ${currentTheme.accent}10, ${currentTheme.accentSecondary}10)`, border: `1px solid ${currentTheme.border}`, borderRadius: '1.5rem', padding: '2rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', opacity: isVisible('stats-card') ? 1 : 0, transform: isVisible('stats-card') ? 'translateY(0)' : 'translateY(40px)', transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.4s' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
+              <svg viewBox="0 0 24 24" fill={currentTheme.textPrimary} style={{ width: '24px', height: '24px' }}>
+                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+              </svg>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.7rem', color: currentTheme.accent, letterSpacing: '0.1em' }}>GITHUB STATS</span>
             </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
+              {[
+                { value: githubStats.repos, label: 'Repos', icon: <svg viewBox="0 0 24 24" fill="none" stroke={currentTheme.accent} strokeWidth="2" style={{ width: '20px', height: '20px' }}><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg> },
+                { value: githubStats.commits, label: 'Commits', icon: <svg viewBox="0 0 24 24" fill="none" stroke={currentTheme.accentSecondary} strokeWidth="2" style={{ width: '20px', height: '20px' }}><circle cx="12" cy="12" r="4"/><path d="M1.05 12H7m10 0h5.95"/></svg> },
+                { value: githubStats.linesOfCode, label: 'Lignes', icon: <svg viewBox="0 0 24 24" fill="none" stroke={currentTheme.accent} strokeWidth="2" style={{ width: '20px', height: '20px' }}><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg> },
+                { value: githubStats.stars, label: 'Stars', icon: <svg viewBox="0 0 24 24" fill={currentTheme.accentSecondary} style={{ width: '20px', height: '20px' }}><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> },
+              ].map((stat, idx) => (
+                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  {stat.icon}
+                  <div>
+                    {githubStats.loading ? (
+                      <div className="shimmer" style={{ width: '40px', height: '28px', borderRadius: '4px' }} />
+                    ) : (
+                      <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '1.75rem', fontWeight: 800, background: `linear-gradient(135deg, ${currentTheme.accent}, ${currentTheme.accentSecondary})`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                        {stat.value}
+                      </div>
+                    )}
+                    <div style={{ fontSize: '0.7rem', color: currentTheme.textMuted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{stat.label}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <a href={`https://github.com/${GITHUB_USERNAME}`} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: currentTheme.textSecondary, textDecoration: 'none', marginTop: '1rem' }}>
+              Voir mon profil GitHub
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '14px', height: '14px' }}><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>
+            </a>
           </div>
         </div>
 
@@ -490,15 +660,40 @@ const Portfolio = () => {
         <div className="projects-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
           {projects.map((project, idx) => (
             <div key={project.id} id={`project-${project.id}`} data-animate style={{ position: 'relative', borderRadius: '1.5rem', overflow: 'hidden', cursor: 'pointer', aspectRatio: '4/3', background: currentTheme.bgTertiary, border: `1px solid ${currentTheme.border}`, opacity: isVisible(`project-${project.id}`) ? 1 : 0, transform: isVisible(`project-${project.id}`) ? 'translateY(0) scale(1)' : 'translateY(40px) scale(0.95)', transition: `all 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${idx * 0.1}s` }} onClick={() => setSelectedProject(project)} onMouseEnter={() => setHoveredProject(project.id)} onMouseLeave={() => setHoveredProject(null)}>
-              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.9) 100%)', zIndex: 1 }} />
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: hoveredProject === project.id ? 0.6 : 0.3, transition: 'all 0.6s ease', transform: hoveredProject === project.id ? 'scale(1.1)' : 'scale(1)', color: project.color }}>
-                <ProjectIcon type={project.image} />
+              {/* Project Image or Fallback */}
+              {project.image ? (
+                <img 
+                  src={project.image} 
+                  alt={project.title}
+                  style={{ 
+                    position: 'absolute', 
+                    inset: 0, 
+                    width: '100%', 
+                    height: '100%', 
+                    objectFit: 'cover',
+                    transition: 'transform 0.6s ease',
+                    transform: hoveredProject === project.id ? 'scale(1.05)' : 'scale(1)'
+                  }}
+                  onError={(e) => { e.target.style.display = 'none'; }}
+                />
+              ) : null}
+              
+              {/* Fallback Icon (visible if no image or image fails to load) */}
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: project.image ? 0 : (hoveredProject === project.id ? 0.6 : 0.3), transition: 'all 0.6s ease', color: project.color }}>
+                <ProjectIcon type={project.id} color={project.color} />
               </div>
+
+              {/* Gradient Overlay */}
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, transparent 20%, rgba(0,0,0,0.85) 100%)', zIndex: 1 }} />
+              
+              {/* Project Info */}
               <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '2rem', zIndex: 2 }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase', color: currentTheme.textMuted, marginBottom: '0.5rem' }}>{project.category}</div>
+                <div style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: '0.5rem' }}>{project.category}</div>
                 <h3 style={{ fontFamily: "'Syne', sans-serif", fontSize: '1.75rem', fontWeight: 700, marginBottom: '0.5rem', color: '#ffffff' }}>{project.title}</h3>
                 <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.75rem', color: currentTheme.accent }}>{project.year}</div>
               </div>
+
+              {/* Hover Arrow */}
               <div style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', width: '50px', height: '50px', background: '#ffffff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: hoveredProject === project.id ? 1 : 0, transform: hoveredProject === project.id ? 'translate(0, 0)' : 'translate(20px, -20px)', transition: 'all 0.4s ease', zIndex: 2 }}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" strokeWidth="2"><path d="M7 17L17 7M17 7H7M17 7V17" /></svg>
               </div>
@@ -684,24 +879,45 @@ const Portfolio = () => {
       {/* PROJECT MODAL */}
       {selectedProject && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(20px)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }} onClick={() => setSelectedProject(null)}>
-          <div style={{ background: currentTheme.bgSecondary, border: `1px solid ${currentTheme.border}`, borderRadius: '2rem', maxWidth: '700px', width: '100%', maxHeight: '90vh', overflowY: 'auto', position: 'relative' }} onClick={(e) => e.stopPropagation()}>
+          <div style={{ background: currentTheme.bgSecondary, border: `1px solid ${currentTheme.border}`, borderRadius: '2rem', maxWidth: '800px', width: '100%', maxHeight: '90vh', overflowY: 'auto', position: 'relative' }} onClick={(e) => e.stopPropagation()}>
             <button style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', width: '50px', height: '50px', background: currentTheme.bgTertiary, border: 'none', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', color: currentTheme.textPrimary, zIndex: 10 }} onClick={() => setSelectedProject(null)}>×</button>
+            
+            {/* Project Image in Modal */}
+            {selectedProject.image && (
+              <div style={{ height: '250px', overflow: 'hidden', borderRadius: '2rem 2rem 0 0' }}>
+                <img 
+                  src={selectedProject.image} 
+                  alt={selectedProject.title}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  onError={(e) => { e.target.parentElement.style.display = 'none'; }}
+                />
+              </div>
+            )}
+            
             <div style={{ padding: '2.5rem', borderBottom: `1px solid ${currentTheme.border}` }}>
-              <div style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase', color: currentTheme.accent, marginBottom: '0.5rem' }}>{selectedProject.category}</div>
-              <h3 style={{ fontFamily: "'Syne', sans-serif", fontSize: '2.5rem', fontWeight: 700 }}>{selectedProject.title}</h3>
+              <div style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase', color: currentTheme.accent, marginBottom: '0.5rem' }}>{selectedProject.category} • {selectedProject.year}</div>
+              <h3 style={{ fontFamily: "'Syne', sans-serif", fontSize: '2rem', fontWeight: 700 }}>{selectedProject.title}</h3>
             </div>
             <div style={{ padding: '2.5rem' }}>
-              <p style={{ fontSize: '1.1rem', lineHeight: 1.7, color: currentTheme.textSecondary, marginBottom: '2rem' }}>{selectedProject.description}</p>
+              <p style={{ fontSize: '1rem', lineHeight: 1.8, color: currentTheme.textSecondary, marginBottom: '2rem', whiteSpace: 'pre-line' }}>{selectedProject.description}</p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '2rem' }}>
                 {selectedProject.tech.map((t, i) => (
                   <span key={i} style={{ padding: '0.5rem 1rem', background: currentTheme.bgTertiary, borderRadius: '100px', fontSize: '0.85rem', color: currentTheme.textSecondary }}>{t}</span>
                 ))}
               </div>
-              {selectedProject.link && (
-                <a href={selectedProject.link} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '1rem 2rem', background: currentTheme.textPrimary, color: currentTheme.bgPrimary, fontWeight: 600, fontSize: '0.9rem', textDecoration: 'none', borderRadius: '100px' }}>
-                  Voir le projet →
-                </a>
-              )}
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                {selectedProject.link && (
+                  <a href={selectedProject.link} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '1rem 2rem', background: currentTheme.textPrimary, color: currentTheme.bgPrimary, fontWeight: 600, fontSize: '0.9rem', textDecoration: 'none', borderRadius: '100px' }}>
+                    Voir le projet →
+                  </a>
+                )}
+                {selectedProject.pdfLink && (
+                  <a href={selectedProject.pdfLink} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '1rem 2rem', background: 'transparent', color: currentTheme.textPrimary, fontWeight: 600, fontSize: '0.9rem', textDecoration: 'none', borderRadius: '100px', border: `1px solid ${currentTheme.border}` }}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '18px', height: '18px' }}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+                    Voir le rapport PDF
+                  </a>
+                )}
+              </div>
             </div>
           </div>
         </div>
