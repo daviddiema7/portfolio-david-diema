@@ -2,7 +2,7 @@
 
 Un portfolio moderne et élégant construit avec React, featuring un design Bento Grid, des animations fluides et une expérience utilisateur premium.
 
-![Portfolio Preview](preview.png)
+
 
 ##  Caractéristiques
 
@@ -12,7 +12,7 @@ Un portfolio moderne et élégant construit avec React, featuring un design Bent
 - **Mode sombre élégant** - Palette orange/turquoise distinctive
 - **Performance optimisée** - Chargement rapide
 
-## 🛠️ Technologies
+##  Technologies
 
 - React 18
 - CSS-in-JS (styles inline)
@@ -32,7 +32,7 @@ Un portfolio moderne et élégant construit avec React, featuring un design Bent
 
 ```bash
 # Si tu as git
-git clone <url-du-repo>
+git clone https://github.com/daviddiema7/portfolio-david-diema.git
 cd portfolio-david-diema
 
 # Ou simplement copier tous les fichiers dans un dossier
@@ -58,7 +58,7 @@ yarn start
 
 Le site sera disponible sur `http://localhost:3000`
 
-## 📁 Structure du projet
+##  Structure du projet
 
 ```
 portfolio-david-diema/
