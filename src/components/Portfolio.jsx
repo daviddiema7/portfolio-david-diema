@@ -15,11 +15,21 @@ const Portfolio = () => {
   const [activeTimelineItem, setActiveTimelineItem] = useState(1);
   const [showMapModal, setShowMapModal] = useState(false);
   const [displayedName, setDisplayedName] = useState('David Diema');
-  const [githubStats, setGithubStats] = useState({ repos: 0, commits: 0, stars: 0, linesOfCode: 0, loading: true });
+  
+  // Variable définie ici
+  const GITHUB_USERNAME = 'daviddiema7';
+
+  // DONNÉES STATIQUES FIXES
+  const [githubStats] = useState({ 
+    repos: 12, 
+    commits: 184, 
+    stars: 15, 
+    linesOfCode: '32K', 
+    loading: false 
+  });
+  
   const timelineRef = useRef(null);
   const containerRef = useRef(null);
-
-  const GITHUB_USERNAME = 'daviddiema7';
 
   const themes = {
     dark: {
@@ -29,15 +39,15 @@ const Portfolio = () => {
       textPrimary: '#fafafa',
       textSecondary: '#a0a0a0',
       textMuted: '#666666',
-      accent: '#FF6B35',
-      accentSecondary: '#4ECDC4',
+      accent: '#FF6B35', 
+      accentSecondary: '#4ECDC4', // Bleu cyan
       border: 'rgba(255,255,255,0.08)',
     },
     light: {
       bgPrimary: '#fafafa',
       bgSecondary: '#ffffff',
       bgTertiary: '#f0f0f0',
-      textPrimary: '#0a0a0a',
+      textPrimary: '#0a0a0a', // Noir pour le mode jour
       textSecondary: '#555555',
       textMuted: '#888888',
       accent: '#FF6B35',
@@ -47,81 +57,6 @@ const Portfolio = () => {
   };
 
   const currentTheme = themes[theme];
-
-  // Fetch GitHub Stats
-  useEffect(() => {
-    const fetchGithubStats = async () => {
-      try {
-        // Fetch user data
-        const userResponse = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}`);
-        const userData = await userResponse.json();
-        
-        // Fetch repos
-        const reposResponse = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}/repos?per_page=100`);
-        const reposData = await reposResponse.json();
-        
-        // Calculate total stars
-        const totalStars = reposData.reduce((acc, repo) => acc + repo.stargazers_count, 0);
-        
-        // Fetch commits for each repo (limited to avoid rate limiting)
-        let totalCommits = 0;
-        let totalBytes = 0;
-        const reposToCheck = reposData.slice(0, 15); // Check first 15 repos
-        
-        for (const repo of reposToCheck) {
-          try {
-            // Get commits count
-            const commitsResponse = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${repo.name}/commits?per_page=1`, {
-              headers: { 'Accept': 'application/vnd.github.v3+json' }
-            });
-            const linkHeader = commitsResponse.headers.get('Link');
-            if (linkHeader) {
-              const match = linkHeader.match(/page=(\d+)>; rel="last"/);
-              if (match) {
-                totalCommits += parseInt(match[1]);
-              }
-            } else {
-              const commitsData = await commitsResponse.json();
-              if (Array.isArray(commitsData)) {
-                totalCommits += commitsData.length;
-              }
-            }
-
-            // Get languages (bytes of code)
-            const languagesResponse = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${repo.name}/languages`);
-            const languagesData = await languagesResponse.json();
-            const repoBytes = Object.values(languagesData).reduce((sum, bytes) => sum + bytes, 0);
-            totalBytes += repoBytes;
-          } catch (e) {
-            // Skip if error
-          }
-        }
-
-        // Estimate lines of code (average ~40 bytes per line)
-        const estimatedLines = Math.round(totalBytes / 40);
-
-        // Format lines of code (e.g., 15.2K, 1.5M)
-        const formatLines = (num) => {
-          if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-          if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
-          return num.toString();
-        };
-
-        setGithubStats({
-          repos: userData.public_repos || 0,
-          commits: totalCommits > 0 ? totalCommits : 50,
-          stars: totalStars,
-          linesOfCode: formatLines(estimatedLines),
-          loading: false
-        });
-      } catch (error) {
-        console.error('Error fetching GitHub stats:', error);
-        setGithubStats({ repos: 12, commits: 150, stars: 5, linesOfCode: '25K', loading: false });
-      }
-    };
-
-    fetchGithubStats();
-  }, []);
 
   // Name scramble animation
   useEffect(() => {
@@ -247,29 +182,8 @@ const Portfolio = () => {
       category: 'Mobile App',
       year: '2025',
       color: '#4ECDC4',
-      image: '/images/projet-recettes.png', // Image du projet
-      description: `Contexte
-Ce projet a été réalisé dans le cadre de la SAE 5.Real.01 en troisième année de BUT Informatique à l'IUT de Villetaneuse (Université Sorbonne Paris Nord). L'objectif était de concevoir une application mobile de recommandation adaptative fonctionnant entièrement hors-ligne, sans dépendance à un serveur distant.
-
-Présentation du projet
-L'application permet aux utilisateurs de gérer le contenu de leur réfrigérateur et de recevoir des recommandations de recettes adaptées à leurs ingrédients disponibles. L'enjeu principal était de proposer un système de recommandation performant tout en respectant la contrainte d'un fonctionnement local. Cette approche garantit la souveraineté de l'utilisateur sur ses données et une utilisation sans connexion internet.
-
-Le projet a été mené par une équipe de six personnes sur une durée de plusieurs mois, avec des livrables réguliers et un suivi par les enseignants responsables de trois compétences : développement, optimisation et communication.
-
-Mon rôle dans le projet
-J'étais responsable du module de gestion des aliments et du frigo. Ce travail comprenait plusieurs aspects :
-
-Conception de l'interface utilisateur
-J'ai développé les écrans de gestion du frigo avec une attention particulière portée à l'ergonomie. L'interface permet l'ajout d'aliments avec saisie manuelle des quantités, des boutons de raccourci pour les ajouts fréquents, et une visualisation claire du contenu via une modale dédiée.
-
-Architecture logicielle
-J'ai mis en place une architecture respectant le pattern Repository, assurant une séparation nette entre la couche de présentation, la logique métier et l'accès aux données. Les controllers utilisent le système de gestion d'état Provider, permettant une interface réactive.
-
-Gestion des données
-J'ai implémenté la récupération automatique des unités de mesure depuis la table de liaison entre recettes et aliments. Cette approche permet d'afficher chaque aliment avec l'unité la plus pertinente.
-
-Contribution à l'optimisation
-J'ai identifié l'absence d'index sur les colonnes fréquemment sollicitées et proposé l'ajout d'index sur les clés étrangères des tables RecetteAliment, Frigo et Historique.`,
+      image: '/images/projet-recettes.png',
+      description: `Contexte\nCe projet a été réalisé dans le cadre de la SAE 5.Real.01 en troisième année de BUT Informatique à l'IUT de Villetaneuse (Université Sorbonne Paris Nord). L'objectif était de concevoir une application mobile de recommandation adaptative fonctionnant entièrement hors-ligne, sans dépendance à un serveur distant.\n\nPrésentation du projet\nL'application permet aux utilisateurs de gérer le contenu de leur réfrigérateur et de recevoir des recommandations de recettes adaptées à leurs ingrédients disponibles. L'enjeu principal était de proposer un système de recommandation performant tout en respectant la contrainte d'un fonctionnement local. Cette approche garantit la souveraineté de l'utilisateur sur ses données et une utilisation sans connexion internet.\n\nLe projet a été mené par une équipe de six personnes sur une durée de plusieurs mois, avec des livrables réguliers et un suivi par les enseignants responsables de trois compétences : développement, optimisation et communication.\n\nMon rôle dans le projet\nJ'étais responsable du module de gestion des aliments et du frigo. Ce travail comprenait plusieurs aspects :\n\nConception de l'interface utilisateur\nJ'ai développé les écrans de gestion du frigo avec une attention particulière portée à l'ergonomie. L'interface permet l'ajout d'aliments avec saisie manuelle des quantités, des boutons de raccourci pour les ajouts fréquents, et une visualisation claire du contenu via une modale dédiée.\n\nArchitecture logicielle\nJ'ai mis en place une architecture respectant le pattern Repository, assurant une séparation nette entre la couche de présentation, la logique métier et l'accès aux données. Les controllers utilisent le système de gestion d'état Provider, permettant une interface réactive.\n\nGestion des données\nJ'ai implémenté la récupération automatique des unités de mesure depuis la table de liaison entre recettes et aliments. Cette approche permet d'afficher chaque aliment avec l'unité la plus pertinente.\n\nContribution à l'optimisation\nJ'ai identifié l'absence d'index sur les colonnes fréquemment sollicitées et proposé l'ajout d'index sur les clés étrangères des tables RecetteAliment, Frigo et Historique.`,
       tech: ['Flutter', 'Dart', 'SQLite', 'Clean Architecture', 'Provider'],
     },
     {
@@ -278,32 +192,8 @@ J'ai identifié l'absence d'index sur les colonnes fréquemment sollicitées et 
       category: 'Backend & NoSQL',
       year: '2025',
       color: '#FF6B35',
-      image: '/images/projet-ubereats.png', // Image du projet
-      description: `1. Le Défi (Contexte)
-Les plateformes de livraison modernes nécessitent une synchronisation parfaite entre trois acteurs distincts (Client, Restaurant, Livreur) qui ne communiquent jamais directement. L'objectif de ce projet était de concevoir un système purement asynchrone, capable de propager les changements d'état d'une commande (Créée → En préparation → Livrée) en temps réel, sans utiliser d'API REST classiques.
-
-2. Architecture & Choix Techniques
-Le projet explore et compare deux paradigmes NoSQL :
-
-Approche Document (MongoDB) : Utilisation des Change Streams sur un Replica Set Dockerisé. Les services "écoutent" passivement la base de données qui agit comme source de vérité.
-
-Approche Clé-Valeur (Redis) : Utilisation du mécanisme Pub/Sub pour la messagerie instantanée et des Hashes pour le stockage d'état rapide.
-
-3. Points Clés de l'Implémentation
-
-Modélisation Dénormalisée : Application des principes NoSQL en intégrant les menus directement au sein des documents "Restaurant", éliminant les jointures coûteuses.
-
-Gestion de la Concurrence : Résolution du problème critique de l'attribution de commande avec transactions atomiques (MongoDB) et transactions optimistes WATCH/MULTI/EXEC (Redis).
-
-Analytics & Reporting : Démonstration de la supériorité de MongoDB pour le calcul du chiffre d'affaires grâce à son Pipeline d'Agrégation natif.
-
-4. Environnement Technique
-Langage : Python (Scripts autonomes pour chaque acteur)
-Bases de Données : MongoDB (Replica Set), Redis
-Infrastructure : Docker & Docker Compose
-
-5. Bilan
-Ce projet a mis en lumière les compromis architecturaux : MongoDB excelle pour la cohérence des données, Redis offre une rapidité extrême pour la messagerie mais son modèle "Fire-and-Forget" pose des défis de persistance.`,
+      image: '/images/projet-ubereats.png',
+      description: `1. Le Défi (Contexte)\nLes plateformes de livraison modernes nécessitent une synchronisation parfaite entre trois acteurs distincts (Client, Restaurant, Livreur) qui ne communiquent jamais directement. L'objectif de ce projet était de concevoir un système purement asynchrone, capable de propager les changements d'état d'une commande (Créée → En préparation → Livrée) en temps réel, sans utiliser d'API REST classiques.\n\n2. Architecture & Choix Techniques\nLe projet explore et compare deux paradigmes NoSQL :\n\nApproche Document (MongoDB) : Utilisation des Change Streams sur un Replica Set Dockerisé. Les services "écoutent" passivement la base de données qui agit comme source de vérité.\n\nApproche Clé-Valeur (Redis) : Utilisation du mécanisme Pub/Sub pour la messagerie instantanée et des Hashes pour le stockage d'état rapide.\n\n3. Points Clés de l'Implémentation\n\nModélisation Dénormalisée : Application des principes NoSQL en intégrant les menus directement au sein des documents "Restaurant", éliminant les jointures coûteuses.\n\nGestion de la Concurrence : Résolution du problème critique de l'attribution de commande avec transactions atomiques (MongoDB) et transactions optimistes WATCH/MULTI/EXEC (Redis).\n\nAnalytics & Reporting : Démonstration de la supériorité de MongoDB pour le calcul du chiffre d'affaires grâce à son Pipeline d'Agrégation natif.\n\n4. Environnement Technique\nLangage : Python (Scripts autonomes pour chaque acteur)\nBases de Données : MongoDB (Replica Set), Redis\nInfrastructure : Docker & Docker Compose\n\n5. Bilan\nCe projet a mis en lumière les compromis architecturaux : MongoDB excelle pour la cohérence des données, Redis offre une rapidité extrême pour la messagerie mais son modèle "Fire-and-Forget" pose des défis de persistance.`,
       tech: ['Python', 'MongoDB', 'Redis', 'Docker', 'Docker Compose'],
       pdfLink: '/Rapport_Projet_Uber_Eats.pdf'
     },
@@ -313,24 +203,8 @@ Ce projet a mis en lumière les compromis architecturaux : MongoDB excelle pour 
       category: 'Full-Stack App',
       year: '2024',
       color: '#95E1D3',
-      image: '/images/projet-stages.png', // Image du projet
-      description: `L'application permet :
-
-• Aux étudiants de suivre leur stage, déposer les documents requis (compte rendu d'installation, rapport de stage), échanger avec leurs tuteurs et consulter les échéances importantes.
-
-• Aux tuteurs pédagogiques et professionnels de suivre l'évolution des stages des étudiants qu'ils encadrent.
-
-• Aux responsables pédagogiques et directeurs d'étude d'avoir une vue d'ensemble sur l'ensemble des stages en cours.
-
-L'application couvre toutes les phases du cycle de vie d'un stage :
-
-• Avant la campagne de stage : chargement et préparation des informations.
-
-• Au début du stage : dépôt du compte rendu d'installation.
-
-• Pendant le stage : échanges entre les étudiants, les tuteurs académiques et les référents en entreprise.
-
-• À la fin du stage : dépôt du rapport final et planification des soutenances.`,
+      image: '/images/projet-stages.png',
+      description: `L'application permet :\n\n• Aux étudiants de suivre leur stage, déposer les documents requis (compte rendu d'installation, rapport de stage), échanger avec leurs tuteurs et consulter les échéances importantes.\n\n• Aux tuteurs pédagogiques et professionnels de suivre l'évolution des stages des étudiants qu'ils encadrent.\n\n• Aux responsables pédagogiques et directeurs d'étude d'avoir une vue d'ensemble sur l'ensemble des stages en cours.\n\nL'application couvre toutes les phases du cycle de vie d'un stage :\n\n• Avant la campagne de stage : chargement et préparation des informations.\n\n• Au début du stage : dépôt du compte rendu d'installation.\n\n• Pendant le stage : échanges entre les étudiants, les tuteurs académiques et les référents en entreprise.\n\n• À la fin du stage : dépôt du rapport final et planification des soutenances.`,
       tech: ['PHP', 'MySQL', 'JavaScript', 'HTML/CSS'],
       link: 'https://github.com/DevKosX/GestionDesStagesProject',
     },
@@ -340,12 +214,8 @@ L'application couvre toutes les phases du cycle de vie d'un stage :
       category: 'Event & Web',
       year: '2024',
       color: '#DDA0DD',
-      image: '/images/projet-24h.png', // Image du projet
-      description: `Ce projet est né d'une volonté commune de rassembler les étudiants autour d'un challenge à la fois technique, collaboratif et stimulant. Pendant 24 heures non-stop, plusieurs équipes d'IUT se sont affrontées autour de trois épreuves : développement web, algorithmie et cryptographie.
-
-Avec mon équipe, nous avons conçu l'événement de A à Z : organisation des épreuves, création du contenu, communication… et bien sûr, la mise en ligne du site officiel.
-
-Ce dernier servait de point central pour suivre l'événement en direct, découvrir les projets, consulter les résultats, et donner un aperçu des coulisses à travers interviews, photos et vidéos.`,
+      image: '/images/projet-24h.png',
+      description: `Ce projet est né d'une volonté commune de rassembler les étudiants autour d'un challenge à la fois technique, collaboratif et stimulant. Pendant 24 heures non-stop, plusieurs équipes d'IUT se sont affrontées autour de trois épreuves : développement web, algorithmie et cryptographie.\n\nAvec mon équipe, nous avons conçu l'événement de A à Z : organisation des épreuves, création du contenu, communication… et bien sûr, la mise en ligne du site officiel.\n\nCe dernier servait de point central pour suivre l'événement en direct, découvrir les projets, consulter les résultats, et donner un aperçu des coulisses à travers interviews, photos et vidéos.`,
       tech: ['Organisation', 'Web Design', 'Communication', 'Gestion de projet'],
       link: 'https://delrone98.wixsite.com/24hchronoinfo',
     }
@@ -361,10 +231,8 @@ Ce dernier servait de point central pour suivre l'événement en direct, découv
   ];
 
   const timeline = [
-    { year: '2020', title: 'Brevet', place: 'Collège', type: 'education' },
     { year: '2023', title: 'Baccalauréat', place: 'Lycée G. Bachelard', type: 'education' },
-    { year: '2023', title: 'BUT Informatique', place: 'IUT Villetaneuse', type: 'education', active: true },
-    { year: '2026', title: 'Diplôme BUT', place: 'Sorbonne Paris Nord', type: 'education' },
+    { year: '2023-2026', title: 'BUT Informatique (en cours)', place: 'IUT Villetaneuse', type: 'education', active: true },
   ];
 
   const isVisible = (id) => visibleElements.has(id);
@@ -374,42 +242,12 @@ Ce dernier servait de point central pour suivre l'événement en direct, découv
   };
   const toggleTheme = () => setTheme(theme === 'dark' ? 'light' : 'dark');
 
-  // Fallback icon when no image
   const ProjectIcon = ({ type, color }) => {
     const icons = {
-      recipe: (
-        <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" style={{ width: '64px', height: '64px' }}>
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
-          <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
-          <circle cx="9" cy="10" r="1"/>
-          <circle cx="15" cy="10" r="1"/>
-        </svg>
-      ),
-      delivery: (
-        <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" style={{ width: '64px', height: '64px' }}>
-          <rect x="1" y="3" width="15" height="13" rx="2"/>
-          <path d="M16 8h4l3 3v5h-7V8z"/>
-          <circle cx="5.5" cy="18.5" r="2.5"/>
-          <circle cx="18.5" cy="18.5" r="2.5"/>
-        </svg>
-      ),
-      stages: (
-        <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" style={{ width: '64px', height: '64px' }}>
-          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-          <path d="M14 2v6h6"/>
-          <path d="M16 13H8"/>
-          <path d="M16 17H8"/>
-          <path d="M10 9H8"/>
-        </svg>
-      ),
-      event: (
-        <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" style={{ width: '64px', height: '64px' }}>
-          <rect x="3" y="4" width="18" height="18" rx="2"/>
-          <path d="M16 2v4"/>
-          <path d="M8 2v4"/>
-          <path d="M3 10h18"/>
-        </svg>
-      )
+      recipe: (<svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" style={{ width: '64px', height: '64px' }}><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><circle cx="9" cy="10" r="1"/><circle cx="15" cy="10" r="1"/></svg>),
+      delivery: (<svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" style={{ width: '64px', height: '64px' }}><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>),
+      stages: (<svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" style={{ width: '64px', height: '64px' }}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>),
+      event: (<svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" style={{ width: '64px', height: '64px' }}><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>)
     };
     const iconMap = { 1: 'recipe', 2: 'delivery', 3: 'stages', 4: 'event' };
     return icons[iconMap[type]] || icons.stages;
@@ -429,13 +267,48 @@ Ce dernier servait de point central pour suivre l'événement en direct, découv
         @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.2); } }
         @keyframes scrollLine { 0% { left: -100%; } 50% { left: 100%; } 100% { left: 100%; } }
         @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+        
+        /* Animation de rotation pour le contour photo */
+        @keyframes spin { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+        }
+
         input:focus, textarea:focus { outline: none; border-color: ${currentTheme.accent} !important; box-shadow: 0 0 0 3px ${currentTheme.accent}20; }
         input::placeholder, textarea::placeholder { color: ${currentTheme.textMuted}; }
         .shimmer { background: linear-gradient(90deg, ${currentTheme.bgTertiary} 25%, ${currentTheme.bgSecondary} 50%, ${currentTheme.bgTertiary} 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+        
+        /* Layout Grid for Hero Section */
+        .hero-layout {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 2rem;
+            align-items: center;
+        }
+        
         @media (max-width: 1024px) {
           .bento-grid > div { grid-column: span 12 !important; }
           .projects-grid { grid-template-columns: 1fr !important; }
           .contact-grid { grid-template-columns: 1fr !important; }
+          
+          /* Mobile layout for Hero */
+          .hero-layout {
+              grid-template-columns: 1fr;
+              text-align: center;
+              gap: 3rem;
+          }
+          .hero-content {
+              order: 2;
+          }
+          .hero-image {
+              order: 1;
+              justify-self: center;
+              margin-bottom: 1rem;
+              max-width: 250px;
+          }
+          .hero-btns {
+              justify-content: center;
+          }
         }
         @media (max-width: 768px) {
           .nav-links { display: none !important; }
@@ -488,38 +361,95 @@ Ce dernier servait de point central pour suivre l'événement en direct, découv
 
       {/* HERO SECTION */}
       <section style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 8vw', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: '-20%', right: '-20%', width: '80vw', height: '80vw', borderRadius: '50%', background: currentTheme.accent, filter: 'blur(120px)', opacity: theme === 'dark' ? 0.15 : 0.1, transform: `translate(${mousePos.x * 30}px, ${mousePos.y * 30}px)` }} />
-        <div style={{ position: 'absolute', bottom: '-30%', left: '-10%', width: '60vw', height: '60vw', borderRadius: '50%', background: currentTheme.accentSecondary, filter: 'blur(120px)', opacity: theme === 'dark' ? 0.1 : 0.08, transform: `translate(${mousePos.x * -20}px, ${mousePos.y * -20}px)` }} />
+        {/* Background Elements - UNIQUEMENT LE BLEU ICI */}
+        <div style={{ position: 'absolute', bottom: '-30%', left: '-10%', width: '60vw', height: '60vw', borderRadius: '50%', background: currentTheme.accentSecondary, filter: 'blur(120px)', opacity: theme === 'dark' ? 0.15 : 0.1, transform: `translate(${mousePos.x * -20}px, ${mousePos.y * -20}px)`, zIndex: 0 }} />
 
-        <div style={{ position: 'relative', zIndex: 10 }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.15em', textTransform: 'uppercase', color: currentTheme.textSecondary, marginBottom: '2rem', opacity: isLoaded ? 1 : 0, transform: isLoaded ? 'translateY(0)' : 'translateY(20px)', transition: 'all 0.8s ease 0.5s' }}>
-            <span style={{ width: '8px', height: '8px', background: '#4ECDC4', borderRadius: '50%', animation: 'pulse 2s ease-in-out infinite' }} />
-            Disponible pour stage à partir du 9 mars 2026
+        <div className="hero-layout" style={{ position: 'relative', zIndex: 10 }}>
+          
+          {/* Left Column: Text */}
+          <div className="hero-content">
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.15em', textTransform: 'uppercase', color: currentTheme.textSecondary, marginBottom: '2rem', opacity: isLoaded ? 1 : 0, transform: isLoaded ? 'translateY(0)' : 'translateY(20px)', transition: 'all 0.8s ease 0.5s' }}>
+                <span style={{ width: '8px', height: '8px', background: '#4ECDC4', borderRadius: '50%', animation: 'pulse 2s ease-in-out infinite' }} />
+                Disponible pour stage à partir du 9 mars 2026
+              </div>
+
+              <p style={{ fontSize: '1.25rem', color: currentTheme.textSecondary, marginBottom: '0.5rem', opacity: isLoaded ? 1 : 0, transform: isLoaded ? 'translateY(0)' : 'translateY(20px)', transition: 'all 0.8s ease 0.55s' }}>
+                Hi, I Am
+              </p>
+
+              <h1 style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 'clamp(2.5rem, 8vw, 6rem)', fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.02em', marginBottom: '1.5rem' }}>
+                <span 
+                  style={{ 
+                    display: 'block', 
+                    opacity: isLoaded ? 1 : 0, 
+                    transform: isLoaded ? 'translateY(0)' : 'translateY(50px)', 
+                    transition: 'all 1s cubic-bezier(0.16, 1, 0.3, 1) 0.6s',
+                    
+                    // CONDITION DU STYLE : 
+                    // Si Dark Mode = Dégradé Blanc -> Bleu
+                    // Si Light Mode = Noir pur
+                    ...(theme === 'dark' ? {
+                        background: `linear-gradient(135deg, #ffffff, ${currentTheme.accentSecondary})`,
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                    } : {
+                        color: '#000000'
+                    })
+                  }}
+                >
+                  {displayedName}
+                </span>
+              </h1>
+
+              <p style={{ maxWidth: '550px', fontSize: '1.125rem', lineHeight: 1.7, color: currentTheme.textSecondary, marginBottom: '3rem', opacity: isLoaded ? 1 : 0, transform: isLoaded ? 'translateY(0)' : 'translateY(20px)', transition: 'all 0.8s ease 0.9s' }}>
+                Développeur full-stack qui transforme des idées en applications concrètes. Actuellement en 3e année de BUT Informatique.
+              </p>
+
+              <div className="hero-btns" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', opacity: isLoaded ? 1 : 0, transform: isLoaded ? 'translateY(0)' : 'translateY(20px)', transition: 'all 0.8s ease 1.1s' }}>
+                <button onClick={() => scrollToSection('projects')} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '1rem 2rem', fontSize: '0.875rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', borderRadius: '100px', background: currentTheme.textPrimary, color: currentTheme.bgPrimary, border: 'none', cursor: 'pointer', transition: 'all 0.4s ease', fontFamily: "'Space Grotesk', sans-serif" }}>
+                  Voir mes projets
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '18px', height: '18px' }}><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </button>
+                <button onClick={() => scrollToSection('contact')} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '1rem 2rem', fontSize: '0.875rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', borderRadius: '100px', background: 'transparent', color: currentTheme.textPrimary, border: `1px solid ${currentTheme.border}`, cursor: 'pointer', transition: 'all 0.4s ease', fontFamily: "'Space Grotesk', sans-serif" }}>
+                  Me contacter
+                </button>
+              </div>
           </div>
 
-          <p style={{ fontSize: '1.25rem', color: currentTheme.textSecondary, marginBottom: '0.5rem', opacity: isLoaded ? 1 : 0, transform: isLoaded ? 'translateY(0)' : 'translateY(20px)', transition: 'all 0.8s ease 0.55s' }}>
-            Hi, I Am
-          </p>
-
-          <h1 style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 'clamp(2.5rem, 8vw, 6rem)', fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.02em', marginBottom: '1.5rem' }}>
-            <span style={{ display: 'block', background: `linear-gradient(135deg, ${currentTheme.accent}, ${currentTheme.accentSecondary})`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', opacity: isLoaded ? 1 : 0, transform: isLoaded ? 'translateY(0)' : 'translateY(50px)', transition: 'all 1s cubic-bezier(0.16, 1, 0.3, 1) 0.6s' }}>
-              {displayedName}
-            </span>
-          </h1>
-
-          <p style={{ maxWidth: '550px', fontSize: '1.125rem', lineHeight: 1.7, color: currentTheme.textSecondary, marginBottom: '3rem', opacity: isLoaded ? 1 : 0, transform: isLoaded ? 'translateY(0)' : 'translateY(20px)', transition: 'all 0.8s ease 0.9s' }}>
-            Développeur Full-Stack en 3e année de BUT Informatique. Je ne fais pas que coder, je crée aussi du contenu visuel.
-          </p>
-
-          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', opacity: isLoaded ? 1 : 0, transform: isLoaded ? 'translateY(0)' : 'translateY(20px)', transition: 'all 0.8s ease 1.1s' }}>
-            <button onClick={() => scrollToSection('projects')} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '1rem 2rem', fontSize: '0.875rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', borderRadius: '100px', background: currentTheme.textPrimary, color: currentTheme.bgPrimary, border: 'none', cursor: 'pointer', transition: 'all 0.4s ease', fontFamily: "'Space Grotesk', sans-serif" }}>
-              Voir mes projets
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '18px', height: '18px' }}><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </button>
-            <button onClick={() => scrollToSection('contact')} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '1rem 2rem', fontSize: '0.875rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', borderRadius: '100px', background: 'transparent', color: currentTheme.textPrimary, border: `1px solid ${currentTheme.border}`, cursor: 'pointer', transition: 'all 0.4s ease', fontFamily: "'Space Grotesk', sans-serif" }}>
-              Me contacter
-            </button>
+          {/* Right Column: Image - ANIMATED BLUE CONTOUR */}
+          <div className="hero-image" style={{ opacity: isLoaded ? 1 : 0, transform: isLoaded ? 'translateY(0) scale(1)' : 'translateY(50px) scale(0.95)', transition: 'all 1s cubic-bezier(0.16, 1, 0.3, 1) 0.8s', display: 'flex', justifyContent: 'center' }}>
+             <div style={{ position: 'relative', width: '320px', height: '320px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                 
+                 {/* Spinning Border Container */}
+                 <div style={{ 
+                     position: 'absolute', 
+                     inset: 0, 
+                     borderRadius: '50%', 
+                     background: `conic-gradient(from 0deg, #00f2ff, transparent, #00f2ff)`, 
+                     animation: 'spin 4s linear infinite',
+                     filter: 'blur(2px)'
+                 }}></div>
+                 
+                 {/* Main Image Container */}
+                 <div style={{ 
+                     position: 'relative', 
+                     width: '300px', 
+                     height: '300px', 
+                     borderRadius: '50%', 
+                     overflow: 'hidden', 
+                     background: currentTheme.bgSecondary,
+                     border: `4px solid ${currentTheme.bgPrimary}`
+                 }}>
+                      <img 
+                          src="/images/photo-profil.jpg" 
+                          alt="David Diema" 
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          onError={(e) => { e.target.style.display = 'none'; }}
+                      />
+                 </div>
+             </div>
           </div>
+
         </div>
 
         <div className="hero-scroll" style={{ position: 'absolute', bottom: '3rem', left: '8vw', display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '0.75rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: currentTheme.textMuted, opacity: isLoaded ? 1 : 0, transition: 'opacity 0.8s ease 1.3s' }}>
@@ -550,8 +480,20 @@ Ce dernier servait de point central pour suivre l'événement en direct, découv
                 <circle cx="12" cy="7" r="4"/>
               </svg>
             </div>
-            <p style={{ fontSize: '1.3rem', lineHeight: 1.6, color: currentTheme.textSecondary }}>
-              Développeur avec une particularité : je ne fais pas que coder, <strong style={{ color: currentTheme.textPrimary, fontWeight: 600 }}>je crée aussi du contenu visuel</strong>. Cette double casquette me donne un œil différent sur les interfaces. Je comprends ce qui fonctionne <strong style={{ color: currentTheme.textPrimary, fontWeight: 600 }}>visuellement et techniquement</strong>.
+            <p style={{
+                      fontSize: '1.3rem',
+                      lineHeight: 1.6,
+                      color: currentTheme.textSecondary,
+                      textAlign: 'justify'
+                    }}
+                  >
+              Je suis du genre à vouloir comprendre le "pourquoi" avant de coder le
+              "comment". Cette approche me pousse à explorer différentes façons de résoudre
+              un problème avant de me lancer.
+              <br /><br />
+              J'aime apprendre en continu. Il y a toujours une nouvelle techno à tester,
+              un pattern à comprendre, ou une meilleure façon de faire les choses.
+              Cette curiosité est ce qui me fait avancer.
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '2rem' }}>
               {['React/Next.js', 'Flutter', 'Node.js', 'MongoDB'].map((tag) => (
@@ -573,7 +515,7 @@ Ce dernier servait de point central pour suivre l'événement en direct, découv
               </div>
               <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '2rem', fontWeight: 700, marginBottom: '0.5rem' }}>Paris</div>
               <div style={{ fontSize: '0.9rem', color: currentTheme.textMuted, marginBottom: '0.25rem' }}>Île-de-France, France</div>
-              <div style={{ fontSize: '0.85rem', color: currentTheme.textMuted }}>77170 Chelles</div>
+              <div style={{ fontSize: '0.85rem', color: currentTheme.textMuted }}>77500 Chelles</div>
             </div>
             <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', background: `${currentTheme.accentSecondary}20`, borderRadius: '100px', fontSize: '0.75rem', color: currentTheme.accentSecondary, alignSelf: 'flex-start' }}>
@@ -605,7 +547,7 @@ Ce dernier servait de point central pour suivre l'événement en direct, découv
             ))}
           </div>
 
-          {/* GitHub Stats Card */}
+          {/* GitHub Stats Card - STATIC VALUES */}
           <div id="stats-card" data-animate style={{ gridColumn: 'span 6', background: `linear-gradient(135deg, ${currentTheme.accent}10, ${currentTheme.accentSecondary}10)`, border: `1px solid ${currentTheme.border}`, borderRadius: '1.5rem', padding: '2rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', opacity: isVisible('stats-card') ? 1 : 0, transform: isVisible('stats-card') ? 'translateY(0)' : 'translateY(40px)', transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.4s' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
               <svg viewBox="0 0 24 24" fill={currentTheme.textPrimary} style={{ width: '24px', height: '24px' }}>
@@ -650,8 +592,9 @@ Ce dernier servait de point central pour suivre l'événement en direct, découv
         </div>
       </section>
 
-      {/* PROJECTS SECTION */}
+      {/* PROJECTS SECTION (Unchanged) */}
       <section id="projects" style={{ padding: '8rem 8vw', background: currentTheme.bgSecondary }}>
+        {/* ... (Contenu identique au précédent) */}
         <div style={{ marginBottom: '4rem' }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.75rem', color: currentTheme.accent, letterSpacing: '0.1em', marginBottom: '1rem' }}>02</div>
           <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 700, letterSpacing: '-0.03em' }}>Projets sélectionnés</h2>
@@ -660,17 +603,12 @@ Ce dernier servait de point central pour suivre l'événement en direct, découv
         <div className="projects-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
           {projects.map((project, idx) => (
             <div key={project.id} id={`project-${project.id}`} data-animate style={{ position: 'relative', borderRadius: '1.5rem', overflow: 'hidden', cursor: 'pointer', aspectRatio: '4/3', background: currentTheme.bgTertiary, border: `1px solid ${currentTheme.border}`, opacity: isVisible(`project-${project.id}`) ? 1 : 0, transform: isVisible(`project-${project.id}`) ? 'translateY(0) scale(1)' : 'translateY(40px) scale(0.95)', transition: `all 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${idx * 0.1}s` }} onClick={() => setSelectedProject(project)} onMouseEnter={() => setHoveredProject(project.id)} onMouseLeave={() => setHoveredProject(null)}>
-              {/* Project Image or Fallback */}
               {project.image ? (
                 <img 
                   src={project.image} 
                   alt={project.title}
                   style={{ 
-                    position: 'absolute', 
-                    inset: 0, 
-                    width: '100%', 
-                    height: '100%', 
-                    objectFit: 'cover',
+                    position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover',
                     transition: 'transform 0.6s ease',
                     transform: hoveredProject === project.id ? 'scale(1.05)' : 'scale(1)'
                   }}
@@ -678,22 +616,18 @@ Ce dernier servait de point central pour suivre l'événement en direct, découv
                 />
               ) : null}
               
-              {/* Fallback Icon (visible if no image or image fails to load) */}
               <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: project.image ? 0 : (hoveredProject === project.id ? 0.6 : 0.3), transition: 'all 0.6s ease', color: project.color }}>
                 <ProjectIcon type={project.id} color={project.color} />
               </div>
 
-              {/* Gradient Overlay */}
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, transparent 20%, rgba(0,0,0,0.85) 100%)', zIndex: 1 }} />
               
-              {/* Project Info */}
               <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '2rem', zIndex: 2 }}>
                 <div style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: '0.5rem' }}>{project.category}</div>
                 <h3 style={{ fontFamily: "'Syne', sans-serif", fontSize: '1.75rem', fontWeight: 700, marginBottom: '0.5rem', color: '#ffffff' }}>{project.title}</h3>
                 <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.75rem', color: currentTheme.accent }}>{project.year}</div>
               </div>
 
-              {/* Hover Arrow */}
               <div style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', width: '50px', height: '50px', background: '#ffffff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: hoveredProject === project.id ? 1 : 0, transform: hoveredProject === project.id ? 'translate(0, 0)' : 'translate(20px, -20px)', transition: 'all 0.4s ease', zIndex: 2 }}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" strokeWidth="2"><path d="M7 17L17 7M17 7H7M17 7V17" /></svg>
               </div>
@@ -702,7 +636,7 @@ Ce dernier servait de point central pour suivre l'événement en direct, découv
         </div>
       </section>
 
-      {/* TIMELINE SECTION */}
+      {/* TIMELINE SECTION (Unchanged) */}
       <section id="parcours" style={{ padding: '8rem 8vw', position: 'relative', overflow: 'hidden' }}>
         <div style={{ marginBottom: '4rem' }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.75rem', color: currentTheme.accent, letterSpacing: '0.1em', marginBottom: '1rem' }}>03</div>
@@ -757,13 +691,14 @@ Ce dernier servait de point central pour suivre l'événement en direct, découv
         </div>
       </section>
 
-      {/* CONTACT SECTION */}
+      {/* CONTACT SECTION (Unchanged) */}
       <section id="contact" style={{ padding: '8rem 8vw', background: currentTheme.bgSecondary }}>
+        {/* ... (Contenu identique au précédent) */}
         <div style={{ marginBottom: '4rem', textAlign: 'center' }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.75rem', color: currentTheme.accent, letterSpacing: '0.1em', marginBottom: '1rem' }}>04</div>
           <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 'clamp(2.5rem, 8vw, 5rem)', fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1 }}>
-            <span>Let's</span>
-            <span style={{ WebkitTextStroke: `2px ${currentTheme.textPrimary}`, color: 'transparent' }}> Connect</span>
+            <span>Entrons en</span>
+            <span style={{ WebkitTextStroke: `2px ${currentTheme.textPrimary}`, color: 'transparent' }}> Contact</span>
           </h2>
           <p style={{ fontSize: '1.125rem', color: currentTheme.textSecondary, marginTop: '1.5rem', maxWidth: '500px', marginLeft: 'auto', marginRight: 'auto' }}>
             Recherche un stage de 14 à 16 semaines en développement web à partir du 9 mars 2026.
@@ -774,8 +709,7 @@ Ce dernier servait de point central pour suivre l'événement en direct, découv
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             {[
               { icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '24px', height: '24px' }}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>, label: 'Email', value: 'diemadavid1@gmail.com', link: 'mailto:diemadavid1@gmail.com' },
-              { icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '24px', height: '24px' }}><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>, label: 'Téléphone', value: '07 45 18 76 66', link: 'tel:0745187666' },
-              { icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '24px', height: '24px' }}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>, label: 'Localisation', value: 'Chelles, 77170' },
+              { icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '24px', height: '24px' }}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>, label: 'Localisation', value: 'Chelles, 77500' },
             ].map((item, idx) => (
               <div key={idx} onClick={() => item.link && window.open(item.link, '_self')} style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.25rem', background: currentTheme.bgTertiary, borderRadius: '1rem', border: `1px solid ${currentTheme.border}`, cursor: item.link ? 'pointer' : 'default' }}>
                 <div style={{ width: '50px', height: '50px', borderRadius: '12px', background: `linear-gradient(135deg, ${currentTheme.accent}20, ${currentTheme.accentSecondary}20)`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: currentTheme.accent }}>{item.icon}</div>
@@ -834,13 +768,13 @@ Ce dernier servait de point central pour suivre l'événement en direct, découv
       {/* FOOTER */}
       <footer style={{ padding: '3rem 8vw', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: `1px solid ${currentTheme.border}`, flexWrap: 'wrap', gap: '1rem' }}>
         <span style={{ fontSize: '0.8rem', color: currentTheme.textMuted }}>© 2024 David Diema — Made with passion in Paris</span>
-        <span style={{ fontSize: '0.8rem', color: currentTheme.textMuted }}>07 45 18 76 66</span>
       </footer>
 
-      {/* MAP MODAL */}
+      {/* MAP MODAL (Unchanged) */}
       {showMapModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(20px)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }} onClick={() => setShowMapModal(false)}>
-          <div style={{ background: currentTheme.bgSecondary, border: `1px solid ${currentTheme.border}`, borderRadius: '2rem', maxWidth: '900px', width: '100%', maxHeight: '90vh', overflow: 'hidden', position: 'relative' }} onClick={(e) => e.stopPropagation()}>
+          {/* ... */}
+           <div style={{ background: currentTheme.bgSecondary, border: `1px solid ${currentTheme.border}`, borderRadius: '2rem', maxWidth: '900px', width: '100%', maxHeight: '90vh', overflow: 'hidden', position: 'relative' }} onClick={(e) => e.stopPropagation()}>
             <button style={{ position: 'absolute', top: '1rem', right: '1rem', width: '50px', height: '50px', background: currentTheme.bgTertiary, border: 'none', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', color: currentTheme.textPrimary, zIndex: 10 }} onClick={() => setShowMapModal(false)}>×</button>
             <div style={{ height: '400px', background: currentTheme.bgTertiary }}>
               <iframe
@@ -860,7 +794,7 @@ Ce dernier servait de point central pour suivre l'événement en direct, découv
               <div style={{ display: 'flex', justifyContent: 'center', gap: '3rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: currentTheme.textSecondary }}>
                   <svg viewBox="0 0 24 24" fill="none" stroke={currentTheme.accent} strokeWidth="2" style={{ width: '18px', height: '18px' }}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                  77170 Chelles
+                  77500 Chelles
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: currentTheme.textSecondary }}>
                   <svg viewBox="0 0 24 24" fill="none" stroke={currentTheme.accent} strokeWidth="2" style={{ width: '18px', height: '18px' }}><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg>
@@ -876,13 +810,13 @@ Ce dernier servait de point central pour suivre l'événement en direct, découv
         </div>
       )}
 
-      {/* PROJECT MODAL */}
+      {/* PROJECT MODAL (Unchanged) */}
       {selectedProject && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(20px)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }} onClick={() => setSelectedProject(null)}>
-          <div style={{ background: currentTheme.bgSecondary, border: `1px solid ${currentTheme.border}`, borderRadius: '2rem', maxWidth: '800px', width: '100%', maxHeight: '90vh', overflowY: 'auto', position: 'relative' }} onClick={(e) => e.stopPropagation()}>
+          {/* ... (Contenu identique au précédent) ... */}
+           <div style={{ background: currentTheme.bgSecondary, border: `1px solid ${currentTheme.border}`, borderRadius: '2rem', maxWidth: '800px', width: '100%', maxHeight: '90vh', overflowY: 'auto', position: 'relative' }} onClick={(e) => e.stopPropagation()}>
             <button style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', width: '50px', height: '50px', background: currentTheme.bgTertiary, border: 'none', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', color: currentTheme.textPrimary, zIndex: 10 }} onClick={() => setSelectedProject(null)}>×</button>
             
-            {/* Project Image in Modal */}
             {selectedProject.image && (
               <div style={{ height: '250px', overflow: 'hidden', borderRadius: '2rem 2rem 0 0' }}>
                 <img 
