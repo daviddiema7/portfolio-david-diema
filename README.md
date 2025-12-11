@@ -1,10 +1,10 @@
-# 🚀 Portfolio David Diema
+#  Portfolio David Diema
 
 Un portfolio moderne et élégant construit avec React, featuring un design Bento Grid, des animations fluides et une expérience utilisateur premium.
 
 ![Portfolio Preview](preview.png)
 
-## ✨ Caractéristiques
+##  Caractéristiques
 
 - **Design Bento Grid** - Layout moderne et tendance
 - **Animations fluides** - Transitions et effets au scroll
@@ -19,7 +19,7 @@ Un portfolio moderne et élégant construit avec React, featuring un design Bent
 - Google Fonts (Syne, Space Grotesk, JetBrains Mono)
 - Intersection Observer API
 
-## 📦 Installation
+##  Installation
 
 ### Prérequis
 
@@ -75,7 +75,7 @@ portfolio-david-diema/
 └── README.md
 ```
 
-## 🎨 Personnalisation
+##  Personnalisation
 
 ### Modifier les informations personnelles
 
@@ -98,7 +98,7 @@ Les couleurs principales sont définies dans les variables CSS :
 
 Place ton fichier CV dans `public/CV_David_Diema_2024.pdf`
 
-## 🚀 Déploiement
+##  Déploiement
 
 ### Build de production
 
@@ -124,13 +124,13 @@ Cela créera un dossier `build/` avec les fichiers optimisés.
 4. Importe ton repository
 5. Déploie !
 
-## 📱 Responsive Breakpoints
+##  Responsive Breakpoints
 
 - **Desktop** : > 1024px
 - **Tablet** : 768px - 1024px  
 - **Mobile** : < 768px
 
-## 🐛 Résolution de problèmes
+##  Résolution de problèmes
 
 ### Les polices ne se chargent pas
 
@@ -144,11 +144,11 @@ Assure-toi que JavaScript est activé dans ton navigateur.
 
 Le menu mobile apparaît uniquement sur les écrans < 768px.
 
-## 📄 Licence
+##  Licence
 
 MIT License - Libre d'utilisation et de modification.
 
-## 👤 Contact
+##  Contact
 
 - **Email** : diemadavid1@gmail.com
 - **LinkedIn** : [david-diema](https://linkedin.com/in/david-diema-0520a7294)
@@ -156,4 +156,4 @@ MIT License - Libre d'utilisation et de modification.
 
 ---
 
-Made with ❤️ by David Diema
+
