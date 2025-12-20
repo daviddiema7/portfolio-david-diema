@@ -444,7 +444,7 @@ const Portfolio = () => {
         <div style={{ position: 'fixed', inset: 0, zIndex: 99, background: `${currentTheme.bgPrimary}f5`, backdropFilter: 'blur(20px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2rem' }}>
           {['about', 'projects', 'passion', 'contact'].map((section) => (
             <button key={section} onClick={() => scrollToSection(section)} style={{ fontSize: '1.5rem', fontWeight: 600, color: currentTheme.textPrimary, background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: "'Syne', sans-serif" }}>
-              {section === 'about' ? 'À propos' : section === 'projects' ? 'Projets' : section === 'passion' ? 'Vlog' : 'Contact'}
+              {section === 'about' ? 'À propos' : section === 'projects' ? 'Projets' : section === 'passion' ? 'Au-delà du code' : 'Contact'}
             </button>
           ))}
         </div>
