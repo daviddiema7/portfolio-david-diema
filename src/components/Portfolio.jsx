@@ -430,7 +430,7 @@ const Portfolio = () => {
         <div className="nav-links" style={{ display: 'flex', gap: '2rem' }}>
           {['about', 'projects', 'passion', 'contact'].map((section) => (
             <button key={section} onClick={() => scrollToSection(section)} style={{ fontSize: '0.8rem', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', color: currentTheme.textSecondary, background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: "'Space Grotesk', sans-serif", transition: 'color 0.3s ease' }}>
-              {section === 'about' ? 'À propos' : section === 'projects' ? 'Projets' : section === 'passion' ? 'Vlog' : 'Contact'}
+              {section === 'about' ? 'À propos' : section === 'projects' ? 'Projets' : section === 'passion' ? 'Au-delà du code' : 'Contact'}
             </button>
           ))}
         </div>
