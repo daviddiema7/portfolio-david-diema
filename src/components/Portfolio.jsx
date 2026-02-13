@@ -2,25 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import Chatbot from './Chatbot'; 
 
 // Composant pour l'animation des nombres (Counter)
-const AnimatedCounter = ({ end, duration = 2000, suffix = '' }) => {
-  const [count, setCount] = useState(0);
-  
-  useEffect(() => {
-    let startTimestamp = null;
-    const step = (timestamp) => {
-      if (!startTimestamp) startTimestamp = timestamp;
-      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-      const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-      setCount(Math.floor(easeOutQuart * end));
-      if (progress < 1) {
-        window.requestAnimationFrame(step);
-      }
-    };
-    window.requestAnimationFrame(step);
-  }, [end, duration]);
-
-  return <span>{count}{suffix}</span>;
-};
 
 const Portfolio = () => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -59,19 +40,14 @@ const Portfolio = () => {
   const [showMapModal, setShowMapModal] = useState(false);
   const [displayedName, setDisplayedName] = useState('David Diema');
    
-  const GITHUB_USERNAME = 'daviddiema7';
+ 
   const containerRef = useRef(null);
   
 
   // --- SÉQUENCE SCANNER (Ajustée : plus lente) ---
   
 
-  const statsData = [
-    { value: 11, label: 'Repos', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '20px', height: '20px' }}><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg> },
-    { value: 184, label: 'Commits', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '20px', height: '20px' }}><circle cx="12" cy="12" r="4"/><path d="M1.05 12H7m10 0h5.95"/></svg> },
-    { value: 32, label: 'Lignes (K)', suffix: 'K', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '20px', height: '20px' }}><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg> },
-    { value: 1, label: 'Stars', icon: <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: '20px', height: '20px' }}><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> },
-  ];
+  
 
   const themes = {
     dark: {
