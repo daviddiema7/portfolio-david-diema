@@ -94,19 +94,16 @@ const Portfolio = () => {
     },
     light: {
       // --- BASE CLAIRE SÉRIEUSE ---
-      bgPrimary: '#ffffff',
-      bgSecondary: '#f5f5f5',
-      bgTertiary: '#e5e5e5',
-      
-      textPrimary: '#000000',
-      textSecondary: '#525252',
-      textMuted: '#a3a3a3',
-      
-      // --- LA MÊME TOUCHE DE ROUGE ---
-      accent: '#B20000',
-      accentSecondary: '#EF4444',
-      
-      border: 'rgba(0, 0, 0, 0.1)',
+      bgPrimary: '#FAFAFA',       // Un blanc très très légèrement cassé pour le fond du site
+    bgSecondary: '#F0F2F5',     // Un gris très doux pour la carte principale (atténue l'effet "flash")
+    bgTertiary: '#E5E7EB',      // Un gris un poil plus dense pour faire un beau dégradé sur la carte Map
+    border: '#E2E8F0',          // Une bordure un peu plus marquée pour bien délimiter les cartes
+    
+    textPrimary: '#1A1A1A',     // Reste inchangé (Noir doux)
+    textSecondary: '#4B5563',   // Reste inchangé (Gris foncé)
+    textMuted: '#9CA3AF',       // Reste inchangé (Gris clair)
+    accent: '#B20000',          // Ton rouge profond qu'on a réglé tout à l'heure
+    accentSecondary: '#8B0000', // Un rouge encore plus sombre pour les dégradés
     }
   };
   const currentTheme = themes[theme];
@@ -290,9 +287,15 @@ const Portfolio = () => {
     { name: 'Flutter', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/flutter/flutter-original.svg' },
     { name: 'Node.js', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg' },
     { name: 'Python', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg' },
+    { name: 'Java', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg' },
     { name: 'MongoDB', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg' },
     { name: 'Docker', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg' },
     { name: 'Git', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg' },
+    { name: 'HTML', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg' },
+    { name: 'JavaScript', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg' },
+    { name: 'SQL', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg' },
+    { name: 'API REST', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/swagger/swagger-original.svg' },
+    { name: 'n8n', icon: 'https://cdn.simpleicons.org/n8n' },
   ];
 
   const isVisible = (id) => visibleElements.has(id);
@@ -442,7 +445,36 @@ const Portfolio = () => {
       <div style={{ position: 'fixed', top: 0, left: 0, height: '3px', background: `linear-gradient(90deg, ${currentTheme.accent}, ${currentTheme.accentSecondary})`, width: `${scrollProgress * 100}%`, zIndex: 1000 }} />
 
       {/* Theme Toggle */}
-      <button onClick={toggleTheme} style={{ position: 'fixed', bottom: '2rem', right: '2rem', width: '56px', height: '56px', borderRadius: '50%', background: currentTheme.bgSecondary, border: `2px solid ${currentTheme.border}`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, transition: 'all 0.3s ease', boxShadow: `0 4px 20px ${currentTheme.accent}30` }}>
+     <button 
+        onClick={toggleTheme} 
+        style={{ 
+          position: 'fixed', 
+          bottom: '2rem', 
+          right: '2rem', 
+          width: '56px', 
+          height: '56px', 
+          borderRadius: '50%', 
+          background: currentTheme.bgSecondary, 
+          border: `2px solid ${currentTheme.border}`, 
+          cursor: 'pointer', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          zIndex: 100, 
+          transition: 'all 0.3s ease', 
+          boxShadow: `0 4px 20px ${currentTheme.accent}30`
+        }}
+        /* --- LES ÉVÉNEMENTS DOIVENT ÊTRE ICI, AVANT LE ">" --- */
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'scale(1.1) rotate(5deg)'; // Grossit un peu et tourne
+          e.currentTarget.style.background = `${currentTheme.textPrimary}10`; // Léger voile
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'scale(1) rotate(0deg)'; // Retour à la normale
+          e.currentTarget.style.background = currentTheme.bgSecondary; // Remet la couleur de base
+        }}
+      >
+        {/* L'icône est à l'intérieur du bouton */}
         <svg viewBox="0 0 24 24" fill="none" stroke={currentTheme.textPrimary} strokeWidth="2" style={{ width: '24px', height: '24px' }}>
           {theme === 'dark' ? (
             <><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></>
@@ -590,7 +622,29 @@ const Portfolio = () => {
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '18px', height: '18px' }}><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
                   Mon CV
                 </button>
-                <button onClick={() => scrollToSection('contact')} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '1rem 2rem', fontSize: '0.875rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', borderRadius: '100px', background: 'transparent', color: currentTheme.textPrimary, border: `1px solid ${currentTheme.border}`, cursor: 'pointer', transition: 'all 0.4s ease', fontFamily: "'Space Grotesk', sans-serif" }}>
+                <button 
+                  onClick={() => scrollToSection('contact')} 
+                  style={{ 
+                    display: 'inline-flex', 
+                    alignItems: 'center', 
+                    gap: '0.5rem', 
+                    padding: '1rem 2rem', 
+                    fontSize: '0.875rem', 
+                    fontWeight: 600, 
+                    letterSpacing: '0.05em', 
+                    textTransform: 'uppercase', 
+                    borderRadius: '100px', 
+                    background: 'transparent', 
+                    color: currentTheme.textPrimary, 
+                    border: `1px solid ${currentTheme.border}`, 
+                    cursor: 'pointer', 
+                    transition: 'all 0.4s ease', 
+                    fontFamily: "'Space Grotesk', sans-serif", 
+                    height: '50px' 
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = `${currentTheme.textPrimary}10`}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                >
                   Me contacter
                 </button>
                 
@@ -672,7 +726,7 @@ const Portfolio = () => {
         <div className="bento-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gridAutoRows: 'minmax(180px, auto)', gap: '1.5rem' }}>
           
           {/* Carte Principale */}
-          <div id="about-main" data-animate style={{ gridColumn: 'span 7', gridRow: 'span 2', background: currentTheme.bgSecondary, border: `1px solid ${currentTheme.border}`, borderRadius: '1.5rem', padding: '2.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', opacity: isVisible('about-main') ? 1 : 0, transform: isVisible('about-main') ? 'translateY(0)' : 'translateY(40px)', transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s' }}>
+          <div id="about-main" data-animate style={{ gridColumn: 'span 7', gridRow: 'span 2', background: currentTheme.bgSecondary, border: `1px solid ${currentTheme.border}`, borderRadius: '1.5rem', padding: '2.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', opacity: isVisible('about-main') ? 1 : 0, transform: isVisible('about-main') ? 'translateY(0)' : 'translateY(40px)', transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s' }}>
             <svg viewBox="0 0 24 24" fill="none" stroke={currentTheme.accent} strokeWidth="1.5" style={{ width: '48px', height: '48px', marginBottom: '1.5rem' }}>
               <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
             </svg>
@@ -681,26 +735,73 @@ const Portfolio = () => {
               <br /><br />
               J'aime <strong style={{ color: currentTheme.accent }}>apprendre en continu</strong>. Il y a toujours une nouvelle techno à tester, un pattern à comprendre, ou une meilleure façon de faire les choses. Cette curiosité est ce qui me fait avancer.
             </p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '2rem' }}>
-              {['React/Next.js', 'Flutter', 'Node.js', 'MongoDB'].map((tag) => (
-                <span key={tag} style={{ padding: '0.5rem 1rem', background: currentTheme.bgTertiary, borderRadius: '100px', fontSize: '0.8rem', color: currentTheme.textSecondary }}>{tag}</span>
-              ))}
-            </div>
+            
           </div>
           {/* Carte Localisation */}
-          <div id="map-card" data-animate onClick={() => setShowMapModal(true)} style={{ gridColumn: 'span 5', gridRow: 'span 2', background: `linear-gradient(135deg, ${currentTheme.bgSecondary}, ${currentTheme.bgTertiary})`, border: `1px solid ${currentTheme.border}`, borderRadius: '1.5rem', padding: '2rem', cursor: 'pointer', opacity: isVisible('map-card') ? 1 : 0, transform: isVisible('map-card') ? 'translateY(0)' : 'translateY(40px)', transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s', position: 'relative', overflow: 'hidden' }}>
+          <div 
+            id="map-card" 
+            data-animate 
+            onClick={() => setShowMapModal(true)} 
+            style={{ 
+              gridColumn: 'span 5', 
+              gridRow: 'span 2', 
+              background: `linear-gradient(135deg, ${currentTheme.bgSecondary}, ${currentTheme.bgTertiary})`, 
+              border: `1px solid ${currentTheme.border}`, 
+              borderRadius: '1.5rem', 
+              padding: '2rem', 
+              display: 'flex', 
+              flexDirection: 'column', 
+              justifyContent: 'space-between', 
+              cursor: 'pointer', 
+              opacity: isLoaded ? 1 : 0, 
+              transform: isLoaded ? 'translateY(0)' : 'translateY(40px)', 
+              // J'ai mis une transition plus réactive (0.3s) pour que le survol soit fluide
+              transition: 'all 0.3s ease', 
+              position: 'relative', 
+              overflow: 'hidden' 
+            }}
+            // --- LES DEUX LIGNES MAGIQUES POUR LE SURVOL ---
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = currentTheme.accent;
+              e.currentTarget.style.boxShadow = `0 0 20px ${currentTheme.accent}30`; // Lueur rouge douce
+              e.currentTarget.style.transform = 'translateY(-4px)'; // Soulève légèrement la carte
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = currentTheme.border;
+              e.currentTarget.style.boxShadow = 'none';
+              e.currentTarget.style.transform = 'translateY(0)'; // Remet la carte en place
+            }}
+            // -----------------------------------------------
+          >
              {/* ... (Contenu de ta carte localisation inchangé) ... */}
-             <div style={{ position: 'absolute', inset: 0, opacity: 0.1, backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M0 50h100M50 0v100M25 0v100M75 0v100M0 25h100M0 75h100' stroke='%23666' stroke-width='0.5' fill='none'/%3E%3C/svg%3E\")", backgroundSize: '30px 30px' }} />
-             <div style={{ position: 'relative', zIndex: 1 }}>
+            <div style={{ position: 'absolute', inset: 0, opacity: 0.1, backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M0 50h100M50 0v100M25 0v100M75 0v100M0 25h100M0 75h100' stroke='%23666' stroke-width='0.5' fill='none'/%3E%3C/svg%3E\")", backgroundSize: '30px 30px' }} />
+            
+            <div style={{ position: 'relative', zIndex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
                 <svg viewBox="0 0 24 24" fill="none" stroke={currentTheme.accent} strokeWidth="2" style={{ width: '32px', height: '32px' }}>
                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
                 </svg>
                 <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.7rem', color: currentTheme.accent, letterSpacing: '0.1em' }}>LOCALISATION</span>
               </div>
-              <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '2rem', fontWeight: 700, marginBottom: '0.5rem' }}>Paris</div>
+              <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '2rem', fontWeight: 700, marginBottom: '0.5rem' }}>Chelles</div>
               <div style={{ fontSize: '0.9rem', color: currentTheme.textMuted, marginBottom: '0.25rem' }}>Île-de-France, France</div>
               <div style={{ fontSize: '0.85rem', color: currentTheme.textMuted }}>77500 Chelles</div>
+            </div>
+
+            <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', background: `${currentTheme.accentSecondary}20`, borderRadius: '100px', fontSize: '0.75rem', color: currentTheme.accentSecondary, alignSelf: 'flex-start' }}>
+                <span style={{ width: '6px', height: '6px', background: currentTheme.accentSecondary, borderRadius: '50%', animation: 'pulse 2s ease-in-out infinite' }} />
+                Disponible en Île-de-France
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: currentTheme.textSecondary }}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '16px', height: '16px' }}><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg>
+                Permis B
+              </div>
+            </div>
+
+            <div style={{ position: 'absolute', bottom: '1rem', right: '1rem', fontSize: '0.75rem', color: currentTheme.accent, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              Voir sur la carte
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '14px', height: '14px' }}><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </div>
           </div>
         </div> {/* FIN DE LA GRILLE BENTO */}
@@ -1091,7 +1192,7 @@ const Portfolio = () => {
                   </a>
                 )}
                 {selectedProject.pdfLink && (
-                  <a href={selectedProject.pdfLink} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '1rem 2rem', background: 'transparent', color: currentTheme.textPrimary, fontWeight: 600, fontSize: '0.9rem', textDecoration: 'none', borderRadius: '100px', border: `1px solid ${currentTheme.border}` }}>
+                  <a href={selectedProject.pdfLink} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '1rem 2rem', background: currentTheme.textPrimary, color: currentTheme.bgPrimary, fontWeight: 600, fontSize: '0.9rem', textDecoration: 'none', borderRadius: '100px', border: `1px solid ${currentTheme.border}` }}>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '18px', height: '18px' }}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
                     Voir le rapport PDF
                   </a>
