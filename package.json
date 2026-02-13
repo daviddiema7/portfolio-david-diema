@@ -35,6 +35,6 @@
   },
   "devDependencies": {
     "gh-pages": "^6.3.0"
-  },
-  "homepage": "https://daviddiema7.github.io/portfolio-david-diema"
+  }
+ 
 }
