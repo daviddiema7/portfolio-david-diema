@@ -34,9 +34,24 @@ const Portfolio = () => {
   const [theme, setTheme] = useState('dark');
   const [formData, setFormData] = useState({ nom: '', prenom: '', email: '', objet: '', message: '' });
   const [formStatus, setFormStatus] = useState('idle');
-
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  useEffect(() => {
+    const checkScroll = () => {
+      if (window.scrollY > 300) {
+        setShowScrollTop(true);
+      } else {
+        setShowScrollTop(false);
+      }
+    };
+    window.addEventListener('scroll', checkScroll);
+    return () => window.removeEventListener('scroll', checkScroll);
+  }, []);
+  
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
   // État Scan Hacker
-  const [scanState, setScanState] = useState('scanning'); 
+ 
   // État Erreur image profil
   const [profileImageError, setProfileImageError] = useState(false);
 
@@ -45,24 +60,10 @@ const Portfolio = () => {
    
   const GITHUB_USERNAME = 'daviddiema7';
   const containerRef = useRef(null);
+  
 
   // --- SÉQUENCE SCANNER (Ajustée : plus lente) ---
-  useEffect(() => {
-    // 1. Scan pendant 3.5s
-    const timer1 = setTimeout(() => {
-        setScanState('verified'); 
-    }, 3500); 
-
-    // 2. Message "Identité Validée" pendant 1.5s de plus
-    const timer2 = setTimeout(() => {
-        setScanState('complete'); 
-    }, 5000);
-
-    return () => {
-        clearTimeout(timer1);
-        clearTimeout(timer2);
-    };
-  }, []);
+  
 
   const statsData = [
     { value: 11, label: 'Repos', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '20px', height: '20px' }}><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg> },
@@ -73,29 +74,41 @@ const Portfolio = () => {
 
   const themes = {
     dark: {
-      bgPrimary: '#0a0a0a',
-      bgSecondary: '#111111',
-      bgTertiary: '#1a1a1a',
-      textPrimary: '#fafafa',
-      textSecondary: '#a0a0a0',
-      textMuted: '#666666',
-      accent: '#FF6B35', 
-      accentSecondary: '#4ECDC4',
-      border: 'rgba(255,255,255,0.08)',
+      // --- BASE MONOCHROME SÉRIEUSE ---
+      bgPrimary: '#050505',    // Noir presque pur
+      bgSecondary: '#151515',  // Cartes très sombres
+      bgTertiary: '#171717',   // Éléments interactifs sombres
+      
+      textPrimary: '#ffffff',  // Titres en blanc pur
+      textSecondary: '#a3a3a3',// Texte en gris neutre
+      textMuted: '#525252',    // Détails en gris foncé
+      
+      // --- LA TOUCHE DE ROUGE ---
+      // Un rouge intense, "Ferrari", pour les éléments clés
+      accent: '#FF4A4A',       
+      // Une variation pour donner du relief si besoin
+      accentSecondary: '#EF4444',
+      
+      // Bordures fines et grises pour garder le côté "Architecte"
+      border: 'rgba(255, 255, 255, 0.12)',
     },
     light: {
-      bgPrimary: '#fafafa',
-      bgSecondary: '#ffffff',
-      bgTertiary: '#f0f0f0',
-      textPrimary: '#0a0a0a',
-      textSecondary: '#555555',
-      textMuted: '#888888',
-      accent: '#FF6B35',
-      accentSecondary: '#4ECDC4',
-      border: 'rgba(0,0,0,0.08)',
+      // --- BASE CLAIRE SÉRIEUSE ---
+      bgPrimary: '#ffffff',
+      bgSecondary: '#f5f5f5',
+      bgTertiary: '#e5e5e5',
+      
+      textPrimary: '#000000',
+      textSecondary: '#525252',
+      textMuted: '#a3a3a3',
+      
+      // --- LA MÊME TOUCHE DE ROUGE ---
+      accent: '#B20000',
+      accentSecondary: '#EF4444',
+      
+      border: 'rgba(0, 0, 0, 0.1)',
     }
   };
-
   const currentTheme = themes[theme];
 
   const passionItems = [
@@ -269,13 +282,17 @@ const Portfolio = () => {
     }
   ];
 
-  const skills = [
-    { name: 'React / Next.js', level: 75 },
-    { name: 'TypeScript', level: 70 },
-    { name: 'Flutter / Dart', level: 65 },
-    { name: 'Node.js', level: 70 },
-    { name: 'MongoDB / Redis', level: 65 },
-    { name: 'Docker', level: 60 },
+ const skills = [
+    { name: 'React', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg' },
+    { name: 'Next.js', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg' },
+    { name: 'TypeScript', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg' },
+    { name: 'Tailwind', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg' },
+    { name: 'Flutter', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/flutter/flutter-original.svg' },
+    { name: 'Node.js', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg' },
+    { name: 'Python', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg' },
+    { name: 'MongoDB', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg' },
+    { name: 'Docker', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg' },
+    { name: 'Git', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg' },
   ];
 
   const isVisible = (id) => visibleElements.has(id);
@@ -406,6 +423,19 @@ const Portfolio = () => {
         @media (max-width: 480px) {
            .masonry-grid { column-count: 1; }
         }
+           @keyframes rotateGradient {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+          @keyframes pulse {
+          0% { opacity: 0.5; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.2); }
+          100% { opacity: 0.5; transform: scale(1); }
+        }
+          @keyframes scrollMarquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
       `}</style>
 
       {/* Progress Bar */}
@@ -452,7 +482,34 @@ const Portfolio = () => {
 
       {/* HERO SECTION */}
       <section style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 8vw', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', bottom: '-30%', left: '-10%', width: '60vw', height: '60vw', borderRadius: '50%', background: currentTheme.accentSecondary, filter: 'blur(120px)', opacity: theme === 'dark' ? 0.15 : 0.1, transform: `translate(${mousePos.x * -20}px, ${mousePos.y * -20}px)`, zIndex: 0 }} />
+        <div style={{ position: 'absolute', 
+                        top: '10%', // On le remonte un peu pour qu'il soit derrière ton nom
+                        left: '-5%', 
+                        width: '70vw', 
+                        height: '70vw', 
+                        borderRadius: '50%', 
+                        // CHANGEMENT : On utilise l'accent principal et on booste l'opacité en mode jour
+                        background: currentTheme.accent, 
+                        filter: 'blur(150px)', 
+                        opacity: theme === 'dark' ? 0.15 : 0.25, // On passe de 0.1 à 0.25 le jour
+                        transform: `translate(${mousePos.x * -30}px, ${mousePos.y * -30}px)`, 
+                        zIndex: 0,
+                        pointerEvents: 'none' 
+                      }} />
+                      {theme === 'light' && (
+                          <div style={{ 
+                            position: 'absolute', 
+                            top: '20%', 
+                            right: '-10%', 
+                            width: '40vw', 
+                            height: '40vw', 
+                            borderRadius: '50%', 
+                            background: currentTheme.accent, 
+                            filter: 'blur(120px)', 
+                            opacity: 0.15, 
+                            zIndex: 0 
+                          }} />
+                        )}
 
         <div className="hero-layout" style={{ position: 'relative', zIndex: 10 }}>
           <div className="hero-content">
@@ -472,13 +529,17 @@ const Portfolio = () => {
                     opacity: isLoaded ? 1 : 0, 
                     transform: isLoaded ? 'translateY(0)' : 'translateY(50px)', 
                     transition: 'all 1s cubic-bezier(0.16, 1, 0.3, 1) 0.6s',
+                    
+                    // --- C'EST ICI QUE ÇA SE PASSE ---
                     ...(theme === 'dark' ? {
                         background: `linear-gradient(135deg, #ffffff, ${currentTheme.accentSecondary})`,
                         WebkitBackgroundClip: 'text',
                         WebkitTextFillColor: 'transparent',
                     } : {
-                        color: '#000000'
+                        color: '#1A1A1A', // Un noir un peu plus doux que le #000
+                        textShadow: `0 0 30px ${currentTheme.accent}30` // Le petit éclat rouge pour le mode jour
                     })
+                    // --------------------------------
                   }}
                 >
                   {displayedName}
@@ -494,100 +555,97 @@ const Portfolio = () => {
                   Voir mes projets
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '18px', height: '18px' }}><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </button>
+                <button 
+                  onClick={() => {
+                    const link = document.createElement('a');
+                    link.href = process.env.PUBLIC_URL + '/CV_David_Diema.pdf';
+                    link.download = 'CV_David_Diema.pdf';
+                    link.click();
+                  }}
+                  style={{ 
+                    display: 'inline-flex', 
+                    alignItems: 'center', 
+                    gap: '0.5rem', 
+                    padding: '1rem 2rem', 
+                    fontSize: '0.875rem', 
+                    fontWeight: 600, 
+                    letterSpacing: '0.05em', 
+                    textTransform: 'uppercase', 
+                    borderRadius: '100px', 
+                    background: 'transparent', 
+                    color: currentTheme.textPrimary, 
+                    border: `1px solid ${currentTheme.border}`, 
+                    cursor: 'pointer', 
+                    transition: 'all 0.4s ease', 
+                    fontFamily: "'Space Grotesk', sans-serif",
+                    height: '50px' 
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = `${currentTheme.textPrimary}10`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'transparent';
+                  }}
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '18px', height: '18px' }}><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+                  Mon CV
+                </button>
                 <button onClick={() => scrollToSection('contact')} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '1rem 2rem', fontSize: '0.875rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', borderRadius: '100px', background: 'transparent', color: currentTheme.textPrimary, border: `1px solid ${currentTheme.border}`, cursor: 'pointer', transition: 'all 0.4s ease', fontFamily: "'Space Grotesk', sans-serif" }}>
                   Me contacter
                 </button>
+                
               </div>
           </div>
 
-          {/* HACKER STYLE PHOTO - SCAN EFFECT */}
-          <div className="hero-image" style={{ opacity: isLoaded ? 1 : 0, transform: isLoaded ? 'translateY(0) scale(1)' : 'translateY(50px) scale(0.95)', transition: 'all 1s cubic-bezier(0.16, 1, 0.3, 1) 0.8s', display: 'flex', justifyContent: 'center' }}>
-             <div style={{ position: 'relative', width: '320px', height: '320px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                 
-                 {/* Container de la photo */}
-                 <div style={{ 
-                     position: 'relative', 
-                     width: '300px', 
-                     height: '300px', 
-                     borderRadius: '50%', 
-                     overflow: 'hidden', 
-                     background: profileImageError ? '#333' : currentTheme.bgSecondary,
-                     border: scanState === 'verified' ? '4px solid #00ff00' : `2px solid ${currentTheme.accentSecondary}`, 
-                     boxShadow: scanState === 'verified' ? '0 0 30px #00ff00' : `0 0 20px ${currentTheme.accentSecondary}40`,
-                     transition: 'all 0.3s ease',
-                     display: 'flex',
-                     alignItems: 'center',
-                     justifyContent: 'center'
-                 }}>
-                      {/* Image Source - Change d'opacité selon le scan */}
-                      {profileImageError ? (
-                          <div style={{ color: '#888', fontSize: '0.8rem', textAlign: 'center', padding: '1rem' }}>
-                              Image non trouvée
-                          </div>
-                      ) : (
-                          <img 
-                              src={process.env.PUBLIC_URL + '/images/photo-profil.jpg'} 
-                              alt="David Diema" 
-                              style={{ 
-                                  width: '100%', 
-                                  height: '100%', 
-                                  objectFit: 'cover',
-                                  opacity: scanState === 'complete' ? 1 : 0.4, 
-                                  filter: scanState === 'complete' ? 'none' : 'grayscale(100%) blur(2px)',
-                                  transition: 'all 0.5s ease'
-                              }}
-                              onError={() => setProfileImageError(true)}
-                          />
-                      )}
-                      
-                      {/* --- SUPERPOSITION DE SCAN --- */}
-                      {!profileImageError && scanState === 'scanning' && (
-                        <>
-                            {/* Grille Tech */}
-                            <div style={{ 
-                                position: 'absolute', inset: 0, 
-                                backgroundImage: `linear-gradient(rgba(0, 242, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 242, 255, 0.1) 1px, transparent 1px)`,
-                                backgroundSize: '20px 20px',
-                                pointerEvents: 'none'
-                            }}></div>
+          {/* PHOTO DE PROFIL SIMPLE (SANS SCAN) */}
+          {/* PHOTO DE PROFIL DYNAMIQUE */}
+          <div className="hero-image" style={{ 
+            opacity: isLoaded ? 1 : 0, 
+            transform: isLoaded ? 'translateY(0) scale(1)' : 'translateY(50px) scale(0.95)', 
+            transition: 'all 1s cubic-bezier(0.16, 1, 0.3, 1) 0.8s', 
+            display: 'flex', 
+            justifyContent: 'center',
+            zIndex: 5
+          }}>
+            <div style={{ position: 'relative', width: '320px', height: '320px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              
+              {/* L'ANNEAU ROUGE QUI TOURNE */}
+              <div style={{
+                position: 'absolute',
+                width: '310px',
+                height: '310px',
+                borderRadius: '50%',
+                background: `conic-gradient(from 0deg, ${currentTheme.accent}, transparent, ${currentTheme.accent})`,
+                animation: 'rotateGradient 4s linear infinite',
+                opacity: 0.8
+              }} />
 
-                            {/* Barre de Scan Qui Descend (Animation rapide 1.5s) */}
-                            <div style={{
-                                position: 'absolute',
-                                top: '-10%', left: 0, right: 0,
-                                height: '20%',
-                                background: `linear-gradient(to bottom, transparent, ${currentTheme.accentSecondary}, transparent)`,
-                                opacity: 0.8,
-                                animation: 'scan 1.5s ease-in-out infinite', 
-                                boxShadow: `0 0 15px ${currentTheme.accentSecondary}`,
-                                pointerEvents: 'none'
-                            }}></div>
-                        </>
-                      )}
-
-                      {/* --- MESSAGE IDENTITE VALIDEE --- */}
-                      {scanState === 'verified' && (
-                          <div style={{
-                              position: 'absolute', inset: 0,
-                              display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              background: 'rgba(0,0,0,0.7)',
-                              animation: 'flashSuccess 0.5s ease infinite'
-                          }}>
-                              <span style={{
-                                  color: '#00ff00', 
-                                  fontFamily: "'JetBrains Mono', monospace", 
-                                  fontWeight: 'bold', 
-                                  fontSize: '1rem', 
-                                  textAlign: 'center',
-                                  border: '2px solid #00ff00',
-                                  padding: '0.5rem'
-                              }}>
-                                  IDENTITÉ<br/>CONFIRMÉE
-                              </span>
-                          </div>
-                      )}
-                 </div>
-             </div>
+              {/* LE ROND NOIR QUI CACHE LE CENTRE DU DÉGRADÉ POUR NE GARDER QUE LE BORD */}
+              <div style={{ 
+                position: 'relative', 
+                width: '300px', 
+                height: '300px', 
+                borderRadius: '50%', 
+                overflow: 'hidden', 
+                background: currentTheme.accent,
+                
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 2
+              }}>
+                {profileImageError ? (
+                  <div style={{ color: '#888', fontSize: '0.8rem' }}>Image non trouvée</div>
+                ) : (
+                  <img 
+                    src={process.env.PUBLIC_URL + '/images/photo-profil.jpg'} 
+                    alt="David Diema" 
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    onError={() => setProfileImageError(true)}
+                  />
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -603,43 +661,37 @@ const Portfolio = () => {
         </div>
       </section>
 
-      {/* ABOUT SECTION */}
-      <section id="about" style={{ padding: '8rem 8vw', overflow: 'hidden', position: 'relative', zIndex: 1 }}>
+      {/* --- SECTION ABOUT --- */}
+      <section id="about" style={{ padding: '8rem 8vw 4rem 8vw', overflow: 'hidden', position: 'relative', zIndex: 1 }}>
         <div style={{ marginBottom: '4rem' }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.75rem', color: currentTheme.accent, letterSpacing: '0.1em', marginBottom: '1rem' }}>01</div>
           <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 700, letterSpacing: '-0.03em' }}>À propos de moi</h2>
         </div>
 
+        {/* Grille Bento : On l'arrête après les deux cartes */}
         <div className="bento-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gridAutoRows: 'minmax(180px, auto)', gap: '1.5rem' }}>
+          
+          {/* Carte Principale */}
           <div id="about-main" data-animate style={{ gridColumn: 'span 7', gridRow: 'span 2', background: currentTheme.bgSecondary, border: `1px solid ${currentTheme.border}`, borderRadius: '1.5rem', padding: '2.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', opacity: isVisible('about-main') ? 1 : 0, transform: isVisible('about-main') ? 'translateY(0)' : 'translateY(40px)', transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s' }}>
-            <div>
-              <svg viewBox="0 0 24 24" fill="none" stroke={currentTheme.accent} strokeWidth="1.5" style={{ width: '48px', height: '48px', marginBottom: '1.5rem' }}>
-                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
-                <circle cx="12" cy="7" r="4"/>
-              </svg>
-            </div>
-            
-            <p style={{
-                fontSize: '1.2rem',
-                lineHeight: 1.8,
-                color: currentTheme.textSecondary,
-              }}
-            >
+            <svg viewBox="0 0 24 24" fill="none" stroke={currentTheme.accent} strokeWidth="1.5" style={{ width: '48px', height: '48px', marginBottom: '1.5rem' }}>
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+            <p style={{ fontSize: '1.2rem', lineHeight: 1.8, color: currentTheme.textSecondary }}>
               Je suis du genre à vouloir comprendre le <strong style={{ color: currentTheme.textPrimary, fontWeight: 700 }}>« pourquoi »</strong> avant de coder le <strong style={{ color: currentTheme.textPrimary, fontWeight: 700 }}>« comment »</strong>. Cette approche me pousse à explorer différentes façons de résoudre un problème avant de me lancer.
               <br /><br />
               J'aime <strong style={{ color: currentTheme.accent }}>apprendre en continu</strong>. Il y a toujours une nouvelle techno à tester, un pattern à comprendre, ou une meilleure façon de faire les choses. Cette curiosité est ce qui me fait avancer.
             </p>
-
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '2rem' }}>
               {['React/Next.js', 'Flutter', 'Node.js', 'MongoDB'].map((tag) => (
-                <span key={tag} style={{ padding: '0.5rem 1rem', background: currentTheme.bgTertiary, borderRadius: '100px', fontSize: '0.8rem', fontWeight: 500, color: currentTheme.textSecondary }}>{tag}</span>
+                <span key={tag} style={{ padding: '0.5rem 1rem', background: currentTheme.bgTertiary, borderRadius: '100px', fontSize: '0.8rem', color: currentTheme.textSecondary }}>{tag}</span>
               ))}
             </div>
           </div>
-
-          <div id="map-card" data-animate onClick={() => setShowMapModal(true)} style={{ gridColumn: 'span 5', gridRow: 'span 2', background: `linear-gradient(135deg, ${currentTheme.bgSecondary}, ${currentTheme.bgTertiary})`, border: `1px solid ${currentTheme.border}`, borderRadius: '1.5rem', padding: '2rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', cursor: 'pointer', opacity: isVisible('map-card') ? 1 : 0, transform: isVisible('map-card') ? 'translateY(0)' : 'translateY(40px)', transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s', position: 'relative', overflow: 'hidden' }}>
-            <div style={{ position: 'absolute', inset: 0, opacity: 0.1, backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M0 50h100M50 0v100M25 0v100M75 0v100M0 25h100M0 75h100' stroke='%23666' stroke-width='0.5' fill='none'/%3E%3C/svg%3E\")", backgroundSize: '30px 30px' }} />
-            <div style={{ position: 'relative', zIndex: 1 }}>
+          {/* Carte Localisation */}
+          <div id="map-card" data-animate onClick={() => setShowMapModal(true)} style={{ gridColumn: 'span 5', gridRow: 'span 2', background: `linear-gradient(135deg, ${currentTheme.bgSecondary}, ${currentTheme.bgTertiary})`, border: `1px solid ${currentTheme.border}`, borderRadius: '1.5rem', padding: '2rem', cursor: 'pointer', opacity: isVisible('map-card') ? 1 : 0, transform: isVisible('map-card') ? 'translateY(0)' : 'translateY(40px)', transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s', position: 'relative', overflow: 'hidden' }}>
+             {/* ... (Contenu de ta carte localisation inchangé) ... */}
+             <div style={{ position: 'absolute', inset: 0, opacity: 0.1, backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M0 50h100M50 0v100M25 0v100M75 0v100M0 25h100M0 75h100' stroke='%23666' stroke-width='0.5' fill='none'/%3E%3C/svg%3E\")", backgroundSize: '30px 30px' }} />
+             <div style={{ position: 'relative', zIndex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
                 <svg viewBox="0 0 24 24" fill="none" stroke={currentTheme.accent} strokeWidth="2" style={{ width: '32px', height: '32px' }}>
                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
@@ -650,73 +702,80 @@ const Portfolio = () => {
               <div style={{ fontSize: '0.9rem', color: currentTheme.textMuted, marginBottom: '0.25rem' }}>Île-de-France, France</div>
               <div style={{ fontSize: '0.85rem', color: currentTheme.textMuted }}>77500 Chelles</div>
             </div>
-            <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', background: `${currentTheme.accentSecondary}20`, borderRadius: '100px', fontSize: '0.75rem', color: currentTheme.accentSecondary, alignSelf: 'flex-start' }}>
-                <span style={{ width: '6px', height: '6px', background: currentTheme.accentSecondary, borderRadius: '50%', animation: 'pulse 2s ease-in-out infinite' }} />
-                Disponible en Île-de-France
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: currentTheme.textSecondary }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '16px', height: '16px' }}><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg>
-                Permis B
-              </div>
-            </div>
-            <div style={{ position: 'absolute', bottom: '1rem', right: '1rem', fontSize: '0.75rem', color: currentTheme.accent, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              Voir sur la carte
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '14px', height: '14px' }}><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </div>
           </div>
+        </div> {/* FIN DE LA GRILLE BENTO */}
 
-          <div id="skills-card" data-animate style={{ gridColumn: 'span 6', background: currentTheme.bgSecondary, border: `1px solid ${currentTheme.border}`, borderRadius: '1.5rem', padding: '2rem', opacity: isVisible('skills-card') ? 1 : 0, transform: isVisible('skills-card') ? 'translateY(0)' : 'translateY(40px)', transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.3s' }}>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.7rem', color: currentTheme.accent, letterSpacing: '0.1em', marginBottom: '1.5rem' }}>COMPÉTENCES CLÉS</div>
-            {skills.map((skill, idx) => (
-              <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-                <span style={{ width: '110px', fontSize: '0.85rem', fontWeight: 500 }}>{skill.name}</span>
-                <div style={{ flex: 1, height: '4px', background: currentTheme.bgTertiary, borderRadius: '2px', overflow: 'hidden' }}>
-                  <div style={{ height: '100%', background: `linear-gradient(90deg, ${currentTheme.accent}, ${currentTheme.accentSecondary})`, borderRadius: '2px', width: isVisible('skills-card') ? `${skill.level}%` : '0%', transition: `width 1.5s cubic-bezier(0.16, 1, 0.3, 1) ${0.4 + idx * 0.1}s` }} />
-                </div>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.75rem', color: currentTheme.textMuted, width: '35px' }}>{skill.level}%</span>
-              </div>
-            ))}
-          </div>
-
-          <div id="stats-card" data-animate style={{ gridColumn: 'span 6', background: `linear-gradient(135deg, ${currentTheme.accent}10, ${currentTheme.accentSecondary}10)`, border: `1px solid ${currentTheme.border}`, borderRadius: '1.5rem', padding: '2rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', opacity: isVisible('stats-card') ? 1 : 0, transform: isVisible('stats-card') ? 'translateY(0)' : 'translateY(40px)', transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.4s' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
-              <svg viewBox="0 0 24 24" fill={currentTheme.textPrimary} style={{ width: '24px', height: '24px' }}>
-                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-              </svg>
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.7rem', color: currentTheme.accent, letterSpacing: '0.1em' }}>GITHUB STATS</span>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
-              {statsData.map((stat, idx) => (
-                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  {stat.icon}
-                  <div>
-                    <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '1.75rem', fontWeight: 800, background: `linear-gradient(135deg, ${currentTheme.accent}, ${currentTheme.accentSecondary})`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                      {isVisible('stats-card') ? (
-                        <AnimatedCounter end={stat.value} suffix={stat.suffix} />
-                      ) : (
-                        <span>0{stat.suffix}</span>
-                      )}
-                    </div>
-                    <div style={{ fontSize: '0.7rem', color: currentTheme.textMuted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{stat.label}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <a href={`https://github.com/${GITHUB_USERNAME}`} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: currentTheme.textSecondary, textDecoration: 'none', marginTop: '1rem' }}>
-              Voir mon profil GitHub
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '14px', height: '14px' }}><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>
-            </a>
-          </div>
+        <div style={{ textAlign: 'center', marginTop: '6rem', marginBottom: '2rem' }}>
+        <div style={{ 
+          fontFamily: "'JetBrains Mono', monospace", 
+          fontSize: '0.75rem', 
+          color: currentTheme.accent, 
+          letterSpacing: '0.2em', 
+          textTransform: 'uppercase',
+          marginBottom: '1rem' 
+        }}>
+          Stack
         </div>
-
-        <div style={{ textAlign: 'center', marginTop: '4rem' }}>
-          <a href={process.env.PUBLIC_URL + '/CV_David_Diema.pdf'} download style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem', padding: '1rem 2rem', fontSize: '0.875rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', borderRadius: '100px', background: currentTheme.textPrimary, color: currentTheme.bgPrimary, textDecoration: 'none' }}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '20px', height: '20px' }}><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
-            Télécharger mon CV
-          </a>
+        <h3 style={{ 
+          fontFamily: "'Syne', sans-serif", 
+          fontSize: '2rem', 
+          fontWeight: 700, 
+          color: currentTheme.textPrimary 
+        }}>
+          Compétences Techniques
+        </h3>
+      </div>
+      </section> {/* FIN DE LA SECTION ABOUT */}
+      <div style={{ 
+        width: '100vw', 
+        height: '100px',
+        position: 'relative', 
+        left: '50%', 
+        right: '50%', 
+        marginLeft: '-50vw', 
+        marginRight: '-50vw', 
+        // On utilise bgSecondary pour que le ruban s'adapte aussi au thème
+        background: theme === 'dark' ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.03)', 
+        borderTop: `1px solid ${currentTheme.border}`,
+        borderBottom: `1px solid ${currentTheme.border}`,
+        display: 'flex',
+        alignItems: 'center',
+        overflow: 'hidden',
+        zIndex: 10
+      }}>
+        <div style={{ 
+          display: 'flex', 
+          width: 'max-content', 
+          animation: 'scrollMarquee 40s linear infinite', 
+          gap: '5rem',
+          alignItems: 'center'
+        }}>
+          {[...skills, ...skills, ...skills, ...skills].map((skill, idx) => (
+            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '1.2rem', whiteSpace: 'nowrap' }}>
+              <img 
+                src={skill.icon} 
+                alt={skill.name} 
+                style={{ 
+                  width: '35px', 
+                  height: '35px', 
+                  objectFit: 'contain'
+                }} 
+              />
+              <span style={{ 
+                fontSize: '1.4rem', 
+                fontWeight: 700, 
+                fontFamily: "'JetBrains Mono', monospace", 
+                // CHANGEMENT ICI : currentTheme.textPrimary au lieu de #ffffff
+                color: currentTheme.textPrimary, 
+                textTransform: 'uppercase' 
+              }}>
+                {skill.name}
+              </span>
+            </div>
+          ))}
         </div>
-      </section>
+      </div>
+     
 
       {/* PROJECTS SECTION */}
       <section id="projects" style={{ padding: '8rem 8vw', background: currentTheme.bgSecondary }}>
@@ -727,7 +786,34 @@ const Portfolio = () => {
 
         <div className="projects-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
           {projects.map((project, idx) => (
-            <div key={project.id} id={`project-${project.id}`} data-animate style={{ position: 'relative', borderRadius: '1.5rem', overflow: 'hidden', cursor: 'pointer', aspectRatio: '4/3', background: currentTheme.bgTertiary, border: `1px solid ${currentTheme.border}`, opacity: isVisible(`project-${project.id}`) ? 1 : 0, transform: isVisible(`project-${project.id}`) ? 'translateY(0) scale(1)' : 'translateY(40px) scale(0.95)', transition: `all 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${idx * 0.1}s` }} onClick={() => setSelectedProject(project)} onMouseEnter={() => setHoveredProject(project.id)} onMouseLeave={() => setHoveredProject(null)}>
+            <div 
+              key={project.id} 
+              id={`project-${project.id}`} 
+              data-animate 
+              style={{ 
+                position: 'relative', 
+                borderRadius: '1.5rem', 
+                overflow: 'hidden', 
+                cursor: 'pointer', 
+                aspectRatio: '4/3', 
+                background: currentTheme.bgTertiary, 
+                
+                // Animation d'apparition au scroll
+                opacity: isVisible(`project-${project.id}`) ? 1 : 0, 
+                transform: isVisible(`project-${project.id}`) ? 'translateY(0) scale(1)' : 'translateY(40px) scale(0.95)', 
+                
+                // Transition fluide pour l'effet de survol
+                transition: 'all 0.4s ease',
+                
+                // --- C'EST ICI QUE L'EFFET GLOW SE JOUE ---
+                // Si survolé : Bordure rouge + Ombre rouge. Sinon : Bordure grise + Pas d'ombre.
+                border: `1px solid ${hoveredProject === project.id ? currentTheme.accent : currentTheme.border}`,
+                boxShadow: hoveredProject === project.id ? `0 10px 40px -10px ${currentTheme.accent}40` : 'none'
+              }} 
+              onClick={() => setSelectedProject(project)} 
+              onMouseEnter={() => setHoveredProject(project.id)} 
+              onMouseLeave={() => setHoveredProject(null)}
+            >
               {project.image ? (
                 <img 
                   src={project.image} 
@@ -735,6 +821,7 @@ const Portfolio = () => {
                   style={{ 
                     position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover',
                     transition: 'transform 0.6s ease',
+                    // Zoom léger sur l'image au survol
                     transform: hoveredProject === project.id ? 'scale(1.05)' : 'scale(1)'
                   }}
                   onError={(e) => { e.target.style.display = 'none'; }}
@@ -927,7 +1014,7 @@ const Portfolio = () => {
 
       {/* FOOTER */}
       <footer style={{ padding: '3rem 8vw', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: `1px solid ${currentTheme.border}`, flexWrap: 'wrap', gap: '1rem' }}>
-        <span style={{ fontSize: '0.8rem', color: currentTheme.textMuted }}>© 2024 David Diema — Made with passion in Paris</span>
+        <span style={{ fontSize: '0.8rem', color: currentTheme.textMuted }}>© 2024 David Diema — Tous droits réservés.</span>
       </footer>
 
       {/* MAP MODAL */}
@@ -1027,7 +1114,58 @@ const Portfolio = () => {
             />
         </div>
       )}
+      {/* BOUTON RETOUR EN HAUT */}
+
+      <button 
+        onClick={scrollToTop}
+        style={{ 
+          position: 'fixed', 
+          bottom: '7rem', 
+          right: '2rem', 
+          width: '50px', 
+          height: '50px', 
+          borderRadius: '50%', 
+          
+          // FOND : Un peu plus clair que le site pour se détacher
+          background: currentTheme.bgTertiary, 
+          
+          // BORDURE & COULEUR : Rouge (Accent) par défaut = VISIBILITÉ MAXIMALE
+          border: `2px solid ${currentTheme.accent}`, 
+          color: currentTheme.accent,
+          
+          cursor: 'pointer', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          zIndex: 90, 
+          
+          // Gestion de l'apparition
+          opacity: showScrollTop ? 1 : 0, 
+          transform: showScrollTop ? 'translateY(0)' : 'translateY(20px)', 
+          pointerEvents: showScrollTop ? 'all' : 'none',
+          
+          transition: 'all 0.3s ease', 
+          // Ombre plus forte pour qu'il "flotte" au dessus du contenu
+          boxShadow: `0 5px 20px rgba(0,0,0,0.6)` 
+        }}
+        // Effet au survol : Le bouton se remplit en rouge
+        onMouseEnter={(e) => {
+            e.currentTarget.style.background = currentTheme.accent;
+            e.currentTarget.style.color = '#ffffff'; // La flèche devient blanche
+            e.currentTarget.style.transform = 'translateY(-5px)'; // Petit saut
+        }}
+        onMouseLeave={(e) => {
+            e.currentTarget.style.background = currentTheme.bgTertiary;
+            e.currentTarget.style.color = currentTheme.accent; // Redevient rouge
+            e.currentTarget.style.transform = 'translateY(0)';
+        }}
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" style={{ width: '22px', height: '22px' }}>
+          <path d="M18 15l-6-6-6 6"/>
+        </svg>
+      </button>
     </div>
+    
   );
 };
 
