@@ -416,6 +416,7 @@ const Portfolio = () => {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
         }
+          
       `}</style>
 
       {/* Progress Bar */}
@@ -555,7 +556,7 @@ const Portfolio = () => {
                 </span>
               </h1>
 
-              <p style={{ maxWidth: '550px', fontSize: '1.125rem', lineHeight: 1.7, color: currentTheme.textSecondary, marginBottom: '3rem', opacity: isLoaded ? 1 : 0, transform: isLoaded ? 'translateY(0)' : 'translateY(20px)', transition: 'all 0.8s ease 0.9s' }}>
+              <p style={{ maxWidth: '550px', fontSize: '1.125rem', lineHeight: 1.7, color: currentTheme.textSecondary, marginBottom: '3rem', opacity: isLoaded ? 1 : 0, transform: isLoaded ? 'translateY(0)' : 'translateY(20px)', transition: 'all 0.8s ease 0.9s',}}>
                 Développeur full-stack qui transforme des idées en applications concrètes. Actuellement en 3e année de BUT Informatique.
               </p>
 
@@ -680,7 +681,12 @@ const Portfolio = () => {
           </div>
         </div>
 
-        <div className="hero-scroll" style={{ position: 'absolute', bottom: '3rem', left: '8vw', display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '0.75rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: currentTheme.textMuted, opacity: isLoaded ? 1 : 0, transition: 'opacity 0.8s ease 1.3s' }}>
+        <div className="hero-scroll" style={{ position: 'relative', bottom: '3rem', left: '8vw', display: 'flex', alignItems: 'center', gap: '1rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: currentTheme.textMuted, transition: 'opacity 0.8s ease 1.3s' ,marginTop: '7rem', // Augmente l'espace avec les boutons
+            opacity: 0.6,
+            fontSize: '0.9rem',
+            textAlign: 'center',
+            
+            zIndex: 1}}>
           <div style={{ width: '60px', height: '1px', background: currentTheme.textMuted, position: 'relative', overflow: 'hidden' }}>
             <div style={{ position: 'absolute', top: 0, left: '-100%', width: '100%', height: '100%', background: currentTheme.accent, animation: 'scrollLine 2s ease-in-out infinite' }} />
           </div>
