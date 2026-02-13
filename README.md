@@ -1,6 +1,6 @@
 #  Portfolio David Diema
 
-Un portfolio moderne et élégant construit avec React, featuring un design Bento Grid, des animations fluides et une expérience utilisateur premium.
+Découvrez mon parcours et mes réalisations à travers une interface pensée pour la clarté et le plaisir de navigation.
 
 
 
@@ -8,8 +8,8 @@ Un portfolio moderne et élégant construit avec React, featuring un design Bent
 
 - **Design Bento Grid** - Layout moderne et tendance
 - **Animations fluides** - Transitions et effets au scroll
-- **100% Responsive** - Parfait sur mobile, tablette et desktop
-- **Mode sombre élégant** - Palette orange/turquoise distinctive
+- **100% Responsive** - Accessible sur mobile, tablette et desktop
+- **Mode sombre/mode jour** - Noir et Rouge/ Blanc et Rouge
 - **Performance optimisée** - Chargement rapide
 
 ##  Technologies
@@ -65,7 +65,7 @@ portfolio-david-diema/
 ├── public/
 │   ├── index.html
 │   ├── favicon.ico
-│   └── CV_David_Diema_2024.pdf    # Ajoute ton CV ici
+│   └── CV_David_Diema_2024.pdf   
 ├── src/
 │   ├── components/
 │   │   └── Portfolio.jsx          # Composant principal

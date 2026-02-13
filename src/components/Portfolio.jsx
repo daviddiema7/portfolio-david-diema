@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import Chatbot from './Chatbot'; 
 
 // Composant pour l'animation des nombres (Counter)
 const AnimatedCounter = ({ end, duration = 2000, suffix = '' }) => {
@@ -547,11 +548,11 @@ const Portfolio = () => {
           <div className="hero-content">
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.15em', textTransform: 'uppercase', color: currentTheme.textSecondary, marginBottom: '2rem', opacity: isLoaded ? 1 : 0, transform: isLoaded ? 'translateY(0)' : 'translateY(20px)', transition: 'all 0.8s ease 0.5s' }}>
                 <span style={{ width: '8px', height: '8px', background: '#4ECDC4', borderRadius: '50%', animation: 'pulse 2s ease-in-out infinite' }} />
-                Disponible pour stage à partir du 9 mars 2026
+                Recherche une alternance pour l'année 2026-2027
               </div>
 
               <p style={{ fontSize: '1.25rem', color: currentTheme.textSecondary, marginBottom: '0.5rem', opacity: isLoaded ? 1 : 0, transform: isLoaded ? 'translateY(0)' : 'translateY(20px)', transition: 'all 0.8s ease 0.55s' }}>
-                Hi, I Am
+                Bonjour, je suis
               </p>
 
               <h1 style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 'clamp(2.5rem, 8vw, 6rem)', fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.02em', marginBottom: '1.5rem' }}>
@@ -1049,7 +1050,7 @@ const Portfolio = () => {
             <span style={{ WebkitTextStroke: `2px ${currentTheme.textPrimary}`, color: 'transparent' }}> Contact</span>
           </h2>
           <p style={{ fontSize: '1.125rem', color: currentTheme.textSecondary, marginTop: '1.5rem', maxWidth: '500px', marginLeft: 'auto', marginRight: 'auto' }}>
-            Recherche un stage de 14 à 16 semaines en développement web à partir du 9 mars 2026.
+            Recherche  une alternance dans le développement web pour l'année 2026-2027.
           </p>
         </div>
 
@@ -1265,6 +1266,7 @@ const Portfolio = () => {
           <path d="M18 15l-6-6-6 6"/>
         </svg>
       </button>
+      <Chatbot currentTheme={currentTheme} theme={theme} />
     </div>
     
   );
