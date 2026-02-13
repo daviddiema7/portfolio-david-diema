@@ -685,8 +685,8 @@ const Portfolio = () => {
             opacity: 0.6,
             fontSize: '0.9rem',
             textAlign: 'center',
-            
-            zIndex: 1}}>
+            color: theme === 'light' ? '#000000' : currentTheme.textPrimary,
+            zIndex: 1,}}>
           <div style={{ width: '60px', height: '1px', background: currentTheme.textMuted, position: 'relative', overflow: 'hidden' }}>
             <div style={{ position: 'absolute', top: 0, left: '-100%', width: '100%', height: '100%', background: currentTheme.accent, animation: 'scrollLine 2s ease-in-out infinite' }} />
           </div>
