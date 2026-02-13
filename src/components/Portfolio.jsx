@@ -681,7 +681,7 @@ const Portfolio = () => {
           </div>
         </div>
 
-        <div className="hero-scroll" style={{ position: 'relative', bottom: '3rem', left: '8vw', display: 'flex', alignItems: 'center', gap: '1rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: currentTheme.textMuted, transition: 'opacity 0.8s ease 1.3s' ,marginTop: '7rem', // Augmente l'espace avec les boutons
+        <div className="hero-scroll" style={{ position: 'relative', bottom: '3rem', left: '8vw', display: 'flex', alignItems: 'center', gap: '1rem', letterSpacing: '0.1em', textTransform: 'uppercase', transition: 'opacity 0.8s ease 1.3s' ,marginTop: '7rem', // Augmente l'espace avec les boutons
             opacity: 0.9,
             fontSize: '0.9rem',
             textAlign: 'center',
